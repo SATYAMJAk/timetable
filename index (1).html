@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Placement OS | VFSTR Guntur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  // Apply saved theme before first paint (no flash)
+  try {
+    var t = localStorage.getItem('vfstr_theme');
+    if (!t) t = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
+<style>
+:root {
+    --bg: #f8fafc;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-bg: rgba(37, 99, 235, 0.1);
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: rgba(0,0,0,0.07);
+    --glass-bg: rgba(255, 255, 255, 0.78);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --sidebar-bg: rgba(255, 255, 255, 0.97);
+    --card-bg: rgba(255, 255, 255, 0.55);
+    --card-hover: rgba(255, 255, 255, 0.95);
+    --danger: #ef4444;
+    --apti: #10b981;
+    --dsa: #3b82f6;
+    --core: #f59e0b;
+    --hr: #8b5cf6;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+[data-theme="dark"] {
+    --bg: #0f172a;
+    --primary: #3b82f6;
+    --primary-hover: #60a5fa;
+    --primary-bg: rgba(59, 130, 246, 0.16);
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --border: rgba(255, 255, 255, 0.09);
+    --glass-bg: rgba(30, 41, 59, 0.78);
+    --glass-border: rgba(255, 255, 255, 0.05);
+    --sidebar-bg: rgba(15, 23, 42, 0.98);
+    --card-bg: rgba(30, 41, 59, 0.55);
+    --card-hover: rgba(30, 41, 59, 0.95);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+button, input, select, textarea { font-family: inherit; }
+body { background: var(--bg); color: var(--text); overflow: hidden; height: 100%; transition: background .3s ease, color .3s ease; }
+[hidden] { display: none !important; }
+
+/* Inline icons */
+.ic { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; vertical-align: -0.125em; }
+
+.app-shell { display: flex; height: 100%; position: relative; }
+
+.glass { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); transition: all .3s ease; }
+.glass:hover { box-shadow: 0 15px 50px -15px rgba(0,0,0,0.12); }
+
+/* Boot */
+.boot { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 500; color: var(--muted); font-weight: 600; gap: 12px; }
+.spinner { width: 22px; height: 22px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Mobile header & overlay */
+.mobile-header { display: none; justify-content: space-between; align-items: center; padding: env(safe-area-inset-top, 0px) 20px 0; height: calc(70px + env(safe-area-inset-top, 0px)); background: var(--sidebar-bg); border-bottom: 1px solid var(--border); z-index: 20; position: fixed; top: 0; left: 0; right: 0; backdrop-filter: blur(10px); }
+.mobile-toggle { background: transparent; border: none; font-size: 24px; color: var(--text); cursor: pointer; display: flex; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); z-index: 35; opacity: 0; transition: opacity .3s ease; }
+.sidebar-overlay.active { display: block; opacity: 1; }
+
+/* Sidebar */
+.sidebar { width: 280px; flex-shrink: 0; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; z-index: 40; transition: transform .3s ease, background .3s ease; overflow-y: auto; }
+.sidebar-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 36px; }
+.logo-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), var(--hr)); color: #fff; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 12px rgba(37,99,235,0.3); flex-shrink: 0; }
+.logo-title { font-weight: 700; font-size: 20px; letter-spacing: -0.5px; }
+.logo-sub { font-size: 13px; color: var(--muted); font-weight: 500; }
+.sidebar-menu { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.menu-btn { display: flex; align-items: center; gap: 14px; padding: 13px 18px; background: transparent; border: none; border-radius: 12px; cursor: pointer; color: var(--muted); font-size: 15px; font-weight: 600; transition: all .2s ease; text-align: left; }
+.menu-btn .ic { width: 19px; height: 19px; transition: transform .2s; }
+.menu-btn:hover { background: var(--border); color: var(--text); }
+.menu-btn:hover .ic { transform: scale(1.1); }
+.menu-btn.active { background: var(--primary); color: #fff; box-shadow: 0 6px 16px rgba(37,99,235,0.25); }
+.sidebar-bottom { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+.sidebar-bottom .theme-btn { justify-content: center; background: var(--border); }
+.sidebar-profile { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; transition: all .2s; }
+.sidebar-profile:hover, .sidebar-profile.active { background: var(--primary-bg); border-color: var(--primary); }
+.profile-avatar { width: 40px; height: 40px; border-radius: 10px; background: var(--primary-bg); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.profile-name { font-weight: 700; font-size: 14px; }
+.profile-sub { font-size: 12px; color: var(--muted); }
+
+/* Main */
+.main-area { flex: 1; min-width: 0; overflow-y: auto; padding: 40px 48px; position: relative; scroll-behavior: smooth; }
+.view { display: none; animation: slideUpFade .4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.view.active { display: block; }
+@keyframes slideUpFade { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 36px; }
+.page-header h1 { font-size: 32px; margin-bottom: 8px; font-weight: 700; letter-spacing: -0.5px; }
+.page-header p { color: var(--muted); font-size: 16px; max-width: 70ch; }
+
+/* Countdown */
+.countdown { display: flex; align-items: center; gap: 24px; padding: 16px 28px; border-left: 4px solid var(--primary); }
+.cd-label { font-weight: 700; font-size: 15px; color: var(--primary); letter-spacing: .5px; }
+.cd-blocks { display: flex; gap: 20px; }
+.cd-item { display: flex; flex-direction: column; align-items: center; }
+.cd-val { font-size: 26px; font-weight: 800; }
+.cd-unit { font-size: 11px; color: var(--muted); letter-spacing: 1px; font-weight: 600; }
+
+/* Rings */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px; }
+.stat-card { padding: 28px 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; transition: transform .3s cubic-bezier(0.175,0.885,0.32,1.275), box-shadow .3s; }
+.stat-card:hover { transform: translateY(-6px); }
+.ring-wrap { position: relative; width: 90px; height: 90px; }
+.ring { width: 90px; height: 90px; transform: rotate(-90deg); }
+.ring-bg { stroke: var(--border); }
+.ring-fill { stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1); stroke-dasharray: 239; stroke-dashoffset: 239; }
+.apti-stroke { stroke: var(--apti); } .dsa-stroke { stroke: var(--dsa); } .core-stroke { stroke: var(--core); } .overall-stroke { stroke: var(--hr); }
+.ring-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; }
+.stat-label { font-weight: 600; font-size: 14px; color: var(--muted); text-align: center; }
+
+/* Tasks */
+.today-box { padding: 28px; }
+.today-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 16px; }
+.today-head h2 { font-size: 22px; font-weight: 700; }
+.today-head p { color: var(--muted); margin-top: 4px; }
+.today-date-label { font-size: 13px; background: var(--primary-bg); color: var(--primary); padding: 4px 12px; border-radius: 20px; margin-left: 12px; vertical-align: middle; font-weight: 700; }
+.btn-add { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #fff; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; box-shadow: 0 4px 12px rgba(37,99,235,0.25); transition: all .2s ease; }
+.btn-add:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37,99,235,0.35); }
+.btn-add:active { transform: translateY(0); }
+.btn-add.full { width: 100%; justify-content: center; padding: 14px; margin-top: 16px; font-size: 16px; }
+.btn-add.green { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(16,185,129,0.25); }
+.btn-add.amber { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(245,158,11,0.25); }
+.btn-add.red { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 12px rgba(239,68,68,0.25); }
+.btn-ghost { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); padding: 10px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; transition: .2s; }
+.btn-ghost:hover { background: var(--primary-bg); border-color: var(--primary); color: var(--primary); }
+.btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+.empty .ic { width: 44px; height: 44px; margin-bottom: 14px; opacity: .5; }
+
+.task-item { display: flex; align-items: center; padding: 16px 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; transition: all .2s ease; cursor: pointer; }
+.task-item:hover { background: var(--card-hover); transform: translateX(4px); border-color: var(--primary-bg); }
+.task-cb-wrap { display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer; }
+.task-cb { width: 22px; height: 22px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+.task-info { display: flex; flex-direction: column; }
+.task-cb:checked + .task-info .task-name { text-decoration: line-through; opacity: .6; }
+.task-name { font-weight: 600; font-size: 16px; transition: all .2s; word-break: break-word; }
+.task-cat { font-size: 11px; font-weight: 700; letter-spacing: .5px; margin-top: 4px; display: inline-block; padding: 2px 8px; border-radius: 12px; background: var(--border); width: fit-content; }
+.cat-badge-Aptitude { color: var(--apti); background: rgba(16,185,129,0.12); }
+.cat-badge-DSA { color: var(--dsa); background: rgba(59,130,246,0.12); }
+.cat-badge-CoreCS { color: var(--core); background: rgba(245,158,11,0.12); }
+.cat-badge-Interviews, .cat-badge-Projects, .cat-badge-HR { color: var(--hr); background: rgba(139,92,246,0.12); }
+
+/* Tracker */
+.tracker-wrap { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.month-tabs { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; scrollbar-width: none; }
+.month-tabs::-webkit-scrollbar { display: none; }
+.m-tab { padding: 10px 20px; border-radius: 20px; border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; font-weight: 600; white-space: nowrap; transition: all .2s; color: var(--text); }
+.m-tab:hover { background: var(--border); }
+.m-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+.table-scroll { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); max-width: 100%; }
+.tracker-table { width: 100%; border-collapse: collapse; min-width: 800px; background: var(--glass-bg); }
+.tracker-table th, .tracker-table td { padding: 12px 10px; text-align: center; border: 1px solid var(--border); font-size: 14px; }
+.tracker-table th { background: var(--primary-bg); font-weight: 700; color: var(--primary); }
+.tracker-table td.t-name { text-align: left; font-weight: 600; position: sticky; left: 0; background: var(--sidebar-bg); z-index: 2; min-width: 200px; }
+.tracker-table th.t-name { position: sticky; left: 0; z-index: 3; text-align: left; background: var(--sidebar-bg); }
+.t-cb { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+.del-btn { background: transparent; border: none; color: var(--danger); cursor: pointer; padding: 6px; border-radius: 6px; transition: .2s; display: inline-flex; }
+.del-btn:hover { background: rgba(239,68,68,0.1); transform: scale(1.1); }
+
+/* Playbook / cards */
+.pb-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.pb-card { padding: 32px; border-top: 5px solid transparent; display: flex; flex-direction: column; transition: transform .3s cubic-bezier(0.175,0.885,0.32,1.275), box-shadow .3s; min-width: 0; }
+.pb-card:hover { transform: translateY(-6px); }
+.pb-card.c-apti { border-top-color: var(--apti); } .pb-card.c-dsa { border-top-color: var(--dsa); } .pb-card.c-core { border-top-color: var(--core); } .pb-card.c-hr { border-top-color: var(--hr); } .pb-card.c-primary { border-top-color: var(--primary); }
+.pb-icon { font-size: 36px; margin-bottom: 20px; display: flex; }
+.pb-apti { color: var(--apti); } .pb-dsa { color: var(--dsa); } .pb-core { color: var(--core); } .pb-hr { color: var(--hr); } .pb-primary { color: var(--primary); }
+.pb-card h3 { margin-bottom: 12px; font-size: 22px; font-weight: 700; }
+.pb-card > p { color: var(--muted); margin-bottom: 20px; line-height: 1.6; font-size: 15px; }
+.pb-card ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.pb-card ul li { position: relative; padding-left: 24px; font-size: 15px; line-height: 1.5; }
+.pb-card ul li::before { content: "✓"; position: absolute; left: 0; color: var(--primary); font-weight: 800; font-size: 13px; top: 1px; }
+
+/* Accordion */
+.accordion-list { display: flex; flex-direction: column; gap: 16px; }
+.acc-item { border: 1px solid var(--border); overflow: hidden; border-radius: 16px; }
+.acc-head { padding: 22px 24px; display: flex; justify-content: space-between; align-items: center; gap: 12px; cursor: pointer; transition: background .2s; }
+.acc-head:hover { background: var(--card-hover); }
+.acc-left { display: flex; align-items: center; gap: 18px; min-width: 0; }
+.acc-icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; flex-shrink: 0; }
+.acc-name { font-weight: 700; font-size: 18px; }
+.acc-role { font-size: 14px; color: var(--muted); margin-top: 4px; font-weight: 500; }
+.acc-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.rounds-badge { background: var(--primary-bg); color: var(--primary); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.acc-chevron { transition: transform .3s ease; color: var(--muted); font-size: 18px; }
+.acc-body { max-height: 0; overflow: hidden; transition: max-height .4s cubic-bezier(0.16,1,0.3,1), padding .4s; padding: 0 24px; background: rgba(0,0,0,0.02); }
+.round-card { margin-top: 16px; background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 14px; display: flex; gap: 16px; flex-direction: column; }
+.round-label { font-weight: 700; color: #fff; background: var(--primary); padding: 4px 12px; border-radius: 8px; font-size: 13px; align-self: flex-start; }
+.round-info h4 { margin-bottom: 10px; font-size: 17px; font-weight: 700; }
+.round-info p { color: var(--muted); font-size: 15px; line-height: 1.7; margin-bottom: 12px; }
+.round-info p strong { color: var(--text); }
+.round-info ul { margin: 0 0 12px 18px; color: var(--muted); line-height: 1.7; font-size: 15px; }
+.prep-links { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.prep-title { font-weight: 600; color: var(--primary); font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.study-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--primary); text-decoration: none; font-weight: 600; font-size: 13px; background: var(--primary-bg); padding: 8px 14px; border-radius: 8px; width: fit-content; max-width: 100%; transition: .2s; }
+.study-btn:hover { background: var(--primary); color: #fff; }
+.study-btn.solid { background: var(--primary); color: #fff; padding: 12px 24px; font-size: 15px; border-radius: 10px; }
+
+/* Resources */
+.res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.res-card { padding: 28px; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 14px; transition: all .3s cubic-bezier(0.175,0.885,0.32,1.275); }
+.res-card:hover { transform: translateY(-6px); border-color: var(--primary-bg); }
+.res-icon-box { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800; }
+.res-card h3 { font-size: 20px; font-weight: 700; }
+.res-card p { color: var(--muted); font-size: 15px; line-height: 1.6; flex: 1; }
+.res-cta { color: var(--primary); font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; margin-top: auto; transition: gap .2s; }
+.res-card:hover .res-cta { gap: 12px; }
+
+/* Checklist */
+.checklist { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.check-row { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; padding: 9px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; transition: .2s; }
+[data-theme="dark"] .check-row { background: rgba(255,255,255,0.05); }
+.check-row:hover { background: var(--primary-bg); }
+.check-row input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0; }
+.check-count { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 14px; }
+
+/* Forms */
+.field { display: block; margin-bottom: 16px; }
+.field > span { display: block; margin-bottom: 7px; font-weight: 600; font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea { width: 100%; padding: 13px 15px; border-radius: 12px; border: 2px solid var(--border); font-size: 15px; outline: none; background: var(--bg); color: var(--text); transition: .2s; }
+.field textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-bg); }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Modal */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity .3s; padding: 20px; }
+.modal-bg.show { opacity: 1; }
+.modal-box { width: 100%; max-width: 440px; max-height: 90%; overflow-y: auto; padding: 32px; background: var(--sidebar-bg); border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); transform: translateY(20px); transition: transform .3s cubic-bezier(0.16,1,0.3,1); border: 1px solid var(--border); }
+.modal-box.wide { max-width: 640px; }
+.modal-bg.show .modal-box { transform: translateY(0); }
+.modal-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; gap: 12px; }
+.modal-title h3 { font-size: 22px; font-weight: 800; }
+.modal-close { background: var(--border); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--text); cursor: pointer; transition: .2s; flex-shrink: 0; }
+.modal-close:hover { background: var(--danger); color: #fff; }
+.modal-msg { color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+
+/* Toasts */
+.toast-container { position: fixed; bottom: 32px; right: 32px; display: flex; flex-direction: column; gap: 12px; z-index: 1000; pointer-events: none; }
+.toast { background: var(--sidebar-bg); color: var(--text); border: 1px solid var(--border); padding: 14px 22px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 15px; animation: slideInToast .4s cubic-bezier(0.16,1,0.3,1) forwards, fadeOutToast .4s 3s forwards; }
+.toast .ic { width: 18px; height: 18px; }
+@keyframes slideInToast { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOutToast { from { opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.3); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* ===== Settings ===== */
+.s-tabs { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 24px; padding-bottom: 4px; scrollbar-width: none; }
+.s-tabs::-webkit-scrollbar { display: none; }
+.s-tab { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--muted); font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap; transition: .2s; }
+.s-tab:hover { color: var(--text); background: var(--card-hover); }
+.s-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.stack { display: flex; flex-direction: column; gap: 24px; }
+.panel { padding: 28px; }
+.panel h3 { display: flex; align-items: center; gap: 10px; font-size: 20px; margin-bottom: 8px; }
+.panel h3 .ic { color: var(--primary); }
+.panel p.muted, .muted-p { color: var(--muted); line-height: 1.6; font-size: 15px; margin-bottom: 16px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.profile-row { display: flex; align-items: center; gap: 20px; margin-bottom: 22px; }
+.big-avatar { width: 70px; height: 70px; border-radius: 16px; background: linear-gradient(135deg, var(--primary), var(--hr)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 12px rgba(37,99,235,0.3); flex-shrink: 0; }
+.profile-row h3 { font-size: 1.4rem; margin: 0 0 4px; }
+.profile-row p { color: var(--muted); font-weight: 500; }
+.kv { background: var(--bg); padding: 16px 18px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; margin-bottom: 22px; }
+.kv > div { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; }
+.kv span { color: var(--muted); font-weight: 500; }
+.kv b { text-align: right; }
+.meter { height: 12px; background: var(--border); border-radius: 99px; overflow: hidden; margin: 16px 0 8px; }
+.meter-fill { height: 100%; width: 0; min-width: 4px; background: linear-gradient(90deg, var(--apti), var(--primary)); border-radius: 99px; transition: width .8s; }
+.meter-legend { font-size: 14px; color: var(--muted); font-weight: 500; line-height: 1.6; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; }
+.tile { padding: 20px 14px; text-align: center; }
+.tile b { display: block; font-size: 30px; font-weight: 800; line-height: 1.2; }
+.tile span { font-size: 13px; color: var(--muted); font-weight: 600; }
+.drow { border: 1px solid var(--border); border-radius: 14px; background: var(--card-bg); padding: 16px 18px; margin-bottom: 12px; }
+.drow-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.drow-title { font-weight: 700; font-size: 16px; }
+.drow-meta { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.drow-meta code { font-family: ui-monospace, Menlo, Consolas, monospace; background: var(--border); padding: 1px 6px; border-radius: 5px; font-size: 12px; }
+.json-pre { max-height: 320px; overflow: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; margin-top: 12px; }
+.vault-grid { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
+.vault-toolbar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+.search-wrap { position: relative; }
+.search-wrap .ic { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.search-wrap input { width: 100%; padding: 12px 14px 12px 40px; border-radius: 12px; border: 2px solid var(--border); background: var(--bg); color: var(--text); font-size: 15px; outline: none; }
+.search-wrap input:focus { border-color: var(--primary); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid var(--border); background: var(--card-bg); color: var(--muted); cursor: pointer; transition: .2s; }
+.chip:hover { color: var(--text); }
+.chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.note-card { padding: 20px 22px; margin-bottom: 14px; border-left: 4px solid var(--border); }
+.note-card.pinned { border-left-color: var(--core); }
+.note-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+.tagbadge { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 12px; background: var(--primary-bg); color: var(--primary); }
+.note-actions { display: flex; gap: 2px; }
+.icon-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 7px; border-radius: 8px; display: inline-flex; font-size: 16px; transition: .2s; }
+.icon-btn:hover { background: var(--primary-bg); color: var(--primary); }
+.icon-btn.danger:hover { background: rgba(239,68,68,0.12); color: var(--danger); }
+.icon-btn.on { color: var(--core); }
+.note-card h4 { font-size: 17px; margin-bottom: 6px; word-break: break-word; }
+.note-body { white-space: pre-wrap; word-break: break-word; color: var(--text); opacity: .85; line-height: 1.6; font-size: 15px; }
+.note-body a { color: var(--primary); }
+.note-meta { margin-top: 12px; font-size: 12px; color: var(--muted); font-weight: 600; }
+.log-row { display: flex; gap: 14px; align-items: flex-start; padding: 12px 4px; border-bottom: 1px solid var(--border); }
+.log-row:last-child { border-bottom: none; }
+.log-ic { width: 34px; height: 34px; border-radius: 10px; background: var(--primary-bg); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.log-msg { font-weight: 600; font-size: 14px; word-break: break-word; }
+.log-time { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.danger-zone { border: 1px solid rgba(239,68,68,0.35); }
+.danger-zone h3 .ic { color: var(--danger); }
+details.paste { margin-top: 16px; }
+details.paste summary { cursor: pointer; font-weight: 600; color: var(--primary); font-size: 14px; margin-bottom: 10px; }
+
+/* ===== Auth screen ===== */
+.auth-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; overflow: auto; z-index: 200; }
+.bg-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .35; animation: float 8s ease-in-out infinite; pointer-events: none; }
+.blob1 { width: 400px; height: 400px; background: #3b82f6; top: -100px; left: -100px; }
+.blob2 { width: 300px; height: 300px; background: #8b5cf6; bottom: -80px; right: -60px; animation-delay: 3s; }
+.blob3 { width: 250px; height: 250px; background: #10b981; bottom: 100px; left: 200px; animation-delay: 5s; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
+.auth-wrapper { position: relative; z-index: 1; display: flex; width: 100%; max-width: 900px; margin: 20px; border-radius: 28px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.18); }
+.brand-panel { flex: 1; background: linear-gradient(135deg, #1e40af, #7c3aed); padding: 50px 40px; display: flex; flex-direction: column; justify-content: center; color: #fff; }
+.brand-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 44px; }
+.brand-icon { width: 52px; height: 52px; background: rgba(255,255,255,0.2); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.brand-name { font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
+.brand-sub { font-size: 12px; opacity: .7; font-weight: 500; }
+.brand-headline { font-size: 32px; font-weight: 800; line-height: 1.2; margin-bottom: 20px; letter-spacing: -1px; }
+.brand-desc { font-size: 15px; opacity: .8; line-height: 1.7; margin-bottom: 36px; }
+.feature-list { display: flex; flex-direction: column; gap: 14px; }
+.feature-item { display: flex; align-items: center; gap: 12px; font-size: 14px; opacity: .92; }
+.feature-item .ic { width: 28px; height: 28px; padding: 6px; background: rgba(255,255,255,0.16); border-radius: 8px; }
+.auth-panel { flex: 1; background: var(--sidebar-bg); backdrop-filter: blur(20px); padding: 50px 40px; display: flex; flex-direction: column; justify-content: center; }
+.tab-switcher { display: flex; gap: 8px; background: var(--bg); padding: 5px; border-radius: 14px; margin-bottom: 32px; }
+.tab-btn { flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; background: transparent; color: var(--muted); transition: all .2s; }
+.tab-btn.active { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+.auth-title { font-size: 26px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+.auth-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+.input-wrap { position: relative; }
+.input-wrap > .ic { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 15px; pointer-events: none; }
+.input-wrap input { width: 100%; padding: 14px 44px 14px 44px; border-radius: 12px; border: 2px solid var(--border); font-size: 15px; outline: none; background: var(--bg); color: var(--text); transition: .2s; }
+.input-wrap input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-bg); }
+.toggle-pass { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; display: flex; }
+.toggle-pass:hover { color: var(--primary); }
+.btn-auth { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--primary), #7c3aed); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all .2s; box-shadow: 0 6px 20px rgba(37,99,235,0.3); margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn-auth:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,0.4); }
+.btn-auth:active { transform: scale(0.98); }
+.msg-box { padding: 12px 16px; border-radius: 10px; font-size: 14px; font-weight: 600; margin-bottom: 16px; display: none; }
+.msg-error { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+.msg-success { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .vault-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .mobile-header { display: flex; }
+    .sidebar { position: fixed; left: -100%; top: 0; bottom: 0; width: min(300px, 86vw); box-shadow: 4px 0 24px rgba(0,0,0,0.1); }
+    .sidebar.open { left: 0; }
+    .main-area { padding: 24px 18px; padding-top: calc(94px + env(safe-area-inset-top, 0px)); }
+    .page-header { flex-direction: column; gap: 18px; margin-bottom: 24px; }
+    .page-header h1 { font-size: 26px; }
+    .countdown { width: 100%; justify-content: center; }
+    .pb-grid, .two-col { grid-template-columns: 1fr; }
+    .toast-container { bottom: 20px; right: 20px; left: 20px; align-items: center; }
+    .toast { width: 100%; justify-content: center; }
+    .brand-panel { display: none; }
+    .auth-panel { padding: 40px 26px; }
+    .panel { padding: 22px; }
+}
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .cd-blocks { gap: 12px; }
+    .cd-val { font-size: 22px; }
+    .acc-head { flex-direction: column; align-items: flex-start; }
+    .acc-right { width: 100%; justify-content: space-between; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="boot" id="boot"><div class="spinner"></div> Loading your data…</div>
+
+<!-- ===================== AUTH SCREEN ===================== -->
+<div class="auth-screen" id="auth-screen" hidden>
+    <div class="bg-blob blob1"></div><div class="bg-blob blob2"></div><div class="bg-blob blob3"></div>
+    <div class="auth-wrapper">
+        <div class="brand-panel">
+            <div class="brand-logo">
+                <div class="brand-icon"><i data-i="graduation-cap"></i></div>
+                <div><div class="brand-name">VFSTR OS</div><div class="brand-sub">Placement Portal</div></div>
+            </div>
+            <div class="brand-headline">Your Personal Placement Tracker</div>
+            <div class="brand-desc">Built for VFSTR CSE students to track, prepare, and land their dream offer at TCS, Wipro, Infosys &amp; more.</div>
+            <div class="feature-list">
+                <div class="feature-item"><i data-i="chart-pie"></i> Real-time Progress Dashboard</div>
+                <div class="feature-item"><i data-i="grid"></i> 6-Month Consistency Tracker</div>
+                <div class="feature-item"><i data-i="building"></i> Company-Wise Round Details</div>
+                <div class="feature-item"><i data-i="message-square"></i> HR Questions &amp; Resume Tips</div>
+                <div class="feature-item"><i data-i="layers"></i> Unlimited notes &amp; data, all stored in-app</div>
+            </div>
+        </div>
+        <div class="auth-panel">
+            <div class="tab-switcher">
+                <button class="tab-btn active" id="tab-login" data-act="auth-tab" data-tab="login">Login</button>
+                <button class="tab-btn" id="tab-register" data-act="auth-tab" data-tab="register">Create Account</button>
+            </div>
+
+            <div id="form-login">
+                <div class="auth-title">Welcome Back!</div>
+                <div class="auth-sub">Enter your credentials to continue.</div>
+                <div class="msg-box msg-error" id="login-error"></div>
+                <div class="form-group"><label for="login-username">Username</label>
+                    <div class="input-wrap"><i data-i="user"></i><input type="text" id="login-username" placeholder="Enter your username" autocomplete="username"></div></div>
+                <div class="form-group"><label for="login-password">Password</label>
+                    <div class="input-wrap"><i data-i="lock"></i><input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password">
+                    <button class="toggle-pass" type="button" data-act="toggle-pass" data-target="login-password" aria-label="Show password"><i data-i="eye"></i></button></div></div>
+                <button class="btn-auth" data-act="login"><i data-i="log-in"></i> Login</button>
+            </div>
+
+            <div id="form-register" hidden>
+                <div class="auth-title">Create Account</div>
+                <div class="auth-sub">Set up your personal placement profile.</div>
+                <div class="msg-box msg-error" id="reg-error"></div>
+                <div class="msg-box msg-success" id="reg-success"></div>
+                <div class="form-group"><label for="reg-name">Full Name</label>
+                    <div class="input-wrap"><i data-i="user"></i><input type="text" id="reg-name" placeholder="e.g., Satya Sai" autocomplete="name"></div></div>
+                <div class="form-group"><label for="reg-username">Username</label>
+                    <div class="input-wrap"><i data-i="at-sign"></i><input type="text" id="reg-username" placeholder="Choose a username" autocomplete="username"></div></div>
+                <div class="form-group"><label for="reg-password">Password</label>
+                    <div class="input-wrap"><i data-i="lock"></i><input type="password" id="reg-password" placeholder="At least 6 characters" autocomplete="new-password">
+                    <button class="toggle-pass" type="button" data-act="toggle-pass" data-target="reg-password" aria-label="Show password"><i data-i="eye"></i></button></div></div>
+                <button class="btn-auth" data-act="register"><i data-i="user-plus"></i> Create My Profile</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div class="app-shell" id="app-shell" hidden>
+
+    <div class="mobile-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <div class="logo-icon" style="width:32px;height:32px;font-size:15px;border-radius:9px;"><i data-i="graduation-cap"></i></div>
+            <span style="font-weight:800;font-size:18px;">VFSTR OS</span>
+        </div>
+        <button class="mobile-toggle" data-act="sidebar" aria-label="Menu"><i data-i="menu"></i></button>
+    </div>
+    <div class="sidebar-overlay" id="sidebar-overlay" data-act="sidebar"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon"><i data-i="graduation-cap"></i></div>
+            <div><div class="logo-title">VFSTR OS</div><div class="logo-sub">Placement Portal</div></div>
+        </div>
+        <div class="sidebar-menu">
+            <button class="menu-btn active" data-act="view" data-view="dashboard"><i data-i="chart-pie"></i> Dashboard</button>
+            <button class="menu-btn" data-act="view" data-view="tracker"><i data-i="grid"></i> 6-Month Tracker</button>
+            <button class="menu-btn" data-act="view" data-view="playbook"><i data-i="book-open"></i> VFSTR Playbook</button>
+            <button class="menu-btn" data-act="view" data-view="oncampus"><i data-i="building"></i> On-Campus Recruiters</button>
+            <button class="menu-btn" data-act="view" data-view="mocks"><i data-i="target"></i> Mock Tests &amp; Links</button>
+            <button class="menu-btn" data-act="view" data-view="resume"><i data-i="file-text"></i> Resume Checklist</button>
+            <button class="menu-btn" data-act="view" data-view="hr"><i data-i="message-square"></i> HR Questions</button>
+        </div>
+        <div class="sidebar-bottom">
+            <button class="menu-btn theme-btn" data-act="theme"><i data-i="moon" id="theme-icon-slot"></i> <span id="theme-text">Dark Mode</span></button>
+            <div class="sidebar-profile" data-act="view" data-view="settings" role="button" tabindex="0">
+                <div class="profile-avatar"><i data-i="settings"></i></div>
+                <div><div class="profile-name">Settings &amp; Profile</div><div class="profile-sub">Memory, data &amp; backup</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-area" id="main-area">
+
+        <!-- DASHBOARD -->
+        <div id="view-dashboard" class="view active">
+            <div class="page-header">
+                <div>
+                    <h1>Dashboard Overview</h1>
+                    <p id="daily-quote" style="color:var(--primary);font-weight:500;">Target: Clear Mass Recruiters (TCS/Wipro/Infosys) by May 2027.</p>
+                </div>
+                <div class="countdown glass">
+                    <div class="cd-label">Placement Season</div>
+                    <div class="cd-blocks">
+                        <div class="cd-item"><span id="days-left" class="cd-val">00</span><span class="cd-unit">Days</span></div>
+                        <div class="cd-item"><span id="hours-left" class="cd-val">00</span><span class="cd-unit">Hours</span></div>
+                        <div class="cd-item"><span id="mins-left" class="cd-val">00</span><span class="cd-unit">Mins</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card glass"><div class="ring-wrap"><svg class="ring" viewBox="0 0 90 90"><circle class="ring-bg" cx="45" cy="45" r="38" stroke-width="8" fill="none"/><circle class="ring-fill apti-stroke" id="apti-ring" cx="45" cy="45" r="38" stroke-width="8" fill="none"/></svg><span class="ring-pct" id="apti-pct">0%</span></div><div class="stat-label">Aptitude Progress</div></div>
+                <div class="stat-card glass"><div class="ring-wrap"><svg class="ring" viewBox="0 0 90 90"><circle class="ring-bg" cx="45" cy="45" r="38" stroke-width="8" fill="none"/><circle class="ring-fill dsa-stroke" id="dsa-ring" cx="45" cy="45" r="38" stroke-width="8" fill="none"/></svg><span class="ring-pct" id="dsa-pct">0%</span></div><div class="stat-label">Coding Consistency</div></div>
+                <div class="stat-card glass"><div class="ring-wrap"><svg class="ring" viewBox="0 0 90 90"><circle class="ring-bg" cx="45" cy="45" r="38" stroke-width="8" fill="none"/><circle class="ring-fill core-stroke" id="core-ring" cx="45" cy="45" r="38" stroke-width="8" fill="none"/></svg><span class="ring-pct" id="core-pct">0%</span></div><div class="stat-label">Core Subjects / SQL</div></div>
+                <div class="stat-card glass"><div class="ring-wrap"><svg class="ring" viewBox="0 0 90 90"><circle class="ring-bg" cx="45" cy="45" r="38" stroke-width="8" fill="none"/><circle class="ring-fill overall-stroke" id="overall-ring" cx="45" cy="45" r="38" stroke-width="8" fill="none"/></svg><span class="ring-pct" id="overall-pct">0%</span></div><div class="stat-label">Overall Readiness</div></div>
+            </div>
+            <div class="today-box glass">
+                <div class="today-head">
+                    <div>
+                        <h2>Today's Focus <span id="today-date" class="today-date-label"></span></h2>
+                        <p>Complete these tasks to keep your streak alive.</p>
+                    </div>
+                    <button class="btn-add" data-act="open-task"><i data-i="plus"></i> Add New Task</button>
+                </div>
+                <div id="today-list"></div>
+            </div>
+        </div>
+
+        <!-- TRACKER -->
+        <div id="view-tracker" class="view">
+            <div class="page-header">
+                <div><h1>6-Month Master Tracker</h1><p>Track your daily consistency across all topics.</p></div>
+                <button class="btn-add" data-act="open-task"><i data-i="plus"></i> Add Task</button>
+            </div>
+            <div class="tracker-wrap glass">
+                <div class="month-tabs" id="month-tabs"></div>
+                <div class="table-scroll"><table class="tracker-table"><thead id="t-head"></thead><tbody id="t-body"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- PLAYBOOK -->
+        <div id="view-playbook" class="view">
+            <div class="page-header"><div><h1>VFSTR Mass Recruiter Playbook</h1><p>Your 6-month step-by-step roadmap to secure an offer.</p></div></div>
+            <div class="pb-grid">
+                <div class="pb-card glass c-apti">
+                    <div class="pb-icon pb-apti"><i data-i="calculator"></i></div>
+                    <h3>Phase 1 — Master Aptitude</h3>
+                    <p>TCS and Wipro eliminate students at the aptitude stage. If you fail Quants or Verbal, your coding skills mean nothing.</p>
+                    <ul>
+                        <li><strong>Quants:</strong> Time &amp; Work, Percentages, Speed &amp; Distance, Profit &amp; Loss</li>
+                        <li><strong>Logical:</strong> Blood relations, Coding-Decoding, Series, Data Sufficiency</li>
+                        <li><strong>Action:</strong> Solve 30 Qs/day on IndiaBix. Focus on speed.</li>
+                    </ul>
+                </div>
+                <div class="pb-card glass c-dsa">
+                    <div class="pb-icon pb-dsa"><i data-i="code"></i></div>
+                    <h3>Phase 2 — Essential Coding</h3>
+                    <p>Mass recruiters do NOT ask DP or Graphs. They want clean code for standard array/string problems.</p>
+                    <ul>
+                        <li><strong>Language:</strong> Pick Java, C++, or Python and stick to it</li>
+                        <li><strong>Topics:</strong> Arrays, Strings, Sorting, basic Recursion</li>
+                        <li><strong>Action:</strong> Striver's A2Z sheet — Easy + Medium only</li>
+                    </ul>
+                </div>
+                <div class="pb-card glass c-core">
+                    <div class="pb-icon pb-core"><i data-i="database"></i></div>
+                    <h3>Phase 3 — Core CS &amp; SQL</h3>
+                    <p>Technical interviews heavily focus on CS fundamentals. These questions separate prepared from unprepared students.</p>
+                    <ul>
+                        <li><strong>OOPS:</strong> 4 Pillars, Abstraction vs Encapsulation, Overloading vs Overriding</li>
+                        <li><strong>DBMS:</strong> ACID, Normalization, JOINs (write raw SQL)</li>
+                        <li><strong>OS &amp; CN:</strong> Paging, Deadlocks, OSI Model, TCP vs UDP</li>
+                    </ul>
+                </div>
+                <div class="pb-card glass c-hr">
+                    <div class="pb-icon pb-hr"><i data-i="users"></i></div>
+                    <h3>Phase 4 — HR &amp; Resume</h3>
+                    <p>The final hurdle. Tests your communication, confidence, and attitude.</p>
+                    <ul>
+                        <li><strong>Projects:</strong> Have 2 projects (Web/ML). Explain the architecture clearly.</li>
+                        <li><strong>Key Qs:</strong> "Tell me about yourself", "5-year goal?", "Willing to relocate?"</li>
+                        <li><strong>Bond:</strong> TCS/Wipro have 1-year bond. Be prepared to agree.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ON-CAMPUS -->
+        <div id="view-oncampus" class="view">
+            <div class="page-header"><div><h1>On-Campus Recruiters</h1><p>Tap a company to see all rounds, what they ask, and study links.</p></div></div>
+            <div class="accordion-list" id="company-list"></div>
+        </div>
+
+        <!-- MOCKS -->
+        <div id="view-mocks" class="view">
+            <div class="page-header"><div><h1>Mock Tests &amp; Resources</h1><p>Curated links for VFSTR CSE students to practice real company patterns.</p></div></div>
+            <div class="res-grid" id="res-grid"></div>
+        </div>
+
+        <!-- RESUME -->
+        <div id="view-resume" class="view">
+            <div class="page-header"><div><h1>Resume ATS Checklist</h1><p>Tick off these critical items before applying. Mass recruiters use ATS (Applicant Tracking Systems) to filter resumes. Your ticks are saved.</p></div></div>
+            <div class="pb-grid" id="resume-grid"></div>
+            <div style="margin-top:30px;text-align:center;">
+                <a href="https://novoresume.com/" target="_blank" rel="noopener" class="study-btn solid"><i data-i="file-text"></i> Build ATS Resume (Novoresume)</a>
+            </div>
+        </div>
+
+        <!-- HR -->
+        <div id="view-hr" class="view">
+            <div class="page-header"><div><h1>HR Questions Bank</h1><p>Top questions asked by TCS, Wipro, Cognizant, and Infosys. Prepare your answers!</p></div></div>
+            <div class="accordion-list" id="hr-list"></div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="view-settings" class="view">
+            <div class="page-header"><div><h1>Settings &amp; Memory</h1><p>Everything this app stores lives here — your profile, notes, progress, activity and raw data. Nothing leaves your device.</p></div></div>
+            <div class="s-tabs" id="s-tabs"></div>
+            <div id="settings-body"></div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ADD TASK MODAL -->
+<div class="modal-bg" id="task-bg" data-act="close-task">
+    <div class="modal-box" data-stop="1">
+        <div class="modal-title"><h3>Add Prep Task</h3><button class="modal-close" data-act="close-task" aria-label="Close"><i data-i="x"></i></button></div>
+        <form id="task-form" autocomplete="off">
+            <label class="field"><span>Task Name</span><input type="text" id="task-name" placeholder="e.g., Solve 2 Array problems" required maxlength="200"></label>
+            <label class="field"><span>Domain</span>
+                <select id="task-cat">
+                    <option value="Aptitude">Aptitude &amp; Reasoning</option>
+                    <option value="DSA">Basic Coding / DSA</option>
+                    <option value="Core CS">Core CS (OOPS, SQL)</option>
+                    <option value="Interviews">Communication / HR</option>
+                    <option value="Projects">Projects</option>
+                </select>
+            </label>
+            <button type="submit" class="btn-add full">Save Task</button>
+        </form>
+    </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-bg" id="confirm-bg" data-act="confirm-no">
+    <div class="modal-box" data-stop="1">
+        <div class="modal-title"><h3 id="confirm-title">Are you sure?</h3></div>
+        <p class="modal-msg" id="confirm-msg"></p>
+        <div class="btn-row" style="justify-content:flex-end;">
+            <button class="btn-ghost" data-act="confirm-no">Cancel</button>
+            <button class="btn-add red" id="confirm-ok" data-act="confirm-yes">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- EXPORT TEXT MODAL -->
+<div class="modal-bg" id="export-bg" data-act="close-export">
+    <div class="modal-box wide" data-stop="1">
+        <div class="modal-title"><h3>Your backup data</h3><button class="modal-close" data-act="close-export" aria-label="Close"><i data-i="x"></i></button></div>
+        <p class="modal-msg">If a file download did not start, copy this text and save it as a <b>.json</b> file. You can paste it back under Backup → Restore.</p>
+        <label class="field"><span id="export-name">backup.json</span><textarea id="export-text" readonly style="min-height:220px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;"></textarea></label>
+        <button class="btn-add" data-act="copy-export"><i data-i="copy"></i> Copy to clipboard</button>
+    </div>
+</div>
+
+<div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   VFSTR Placement OS — single-file app
+   Storage: IndexedDB (no app-imposed size limit) with in-memory cache.
+   ===================================================================== */
+
+// ---------- helpers ----------
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const pad2 = n => String(n).padStart(2, '0');
+const dateStr = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const todayStr = () => dateStr(new Date());
+const fmtDateTime = ts => { try { return new Date(ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { return ''; } };
+const fmtDate = ts => { try { return new Date(ts).toLocaleDateString(undefined, { dateStyle: 'medium' }); } catch (e) { return ''; } };
+function fmtBytes(n) {
+    n = Number(n) || 0;
+    if (n < 1024) return n + ' B';
+    const u = ['KB', 'MB', 'GB', 'TB']; let i = -1;
+    do { n /= 1024; i++; } while (n >= 1024 && i < u.length - 1);
+    return n.toFixed(n < 10 ? 2 : 1) + ' ' + u[i];
+}
+const byteLen = v => { try { return new TextEncoder().encode(JSON.stringify(v) ?? '').length; } catch (e) { return 0; } };
+const catClass = c => 'cat-badge-' + String(c).replace(/[^a-zA-Z]/g, '');
+
+// ---------- icons (inline SVG, Lucide-style) ----------
+const ICONS = {
+ 'graduation-cap': '<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
+ 'chart-pie': '<path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"/><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>',
+ 'grid': '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/>',
+ 'book-open': '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+ 'building': '<rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/>',
+ 'target': '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+ 'file-text': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+ 'message-square': '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+ 'moon': '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+ 'sun': '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+ 'settings': '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+ 'menu': '<path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/>',
+ 'plus': '<path d="M5 12h14"/><path d="M12 5v14"/>',
+ 'x': '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+ 'trash': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+ 'download': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+ 'upload': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+ 'hard-drive': '<line x1="22" x2="2" y1="12" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/>',
+ 'log-out': '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
+ 'log-in': '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+ 'user': '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+ 'users': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+ 'user-plus': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+ 'list-checks': '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+ 'flame': '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+ 'check-circle': '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>',
+ 'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+ 'external-link': '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+ 'calculator': '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>',
+ 'code': '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+ 'database': '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/>',
+ 'arrow-right': '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+ 'lightbulb': '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+ 'server': '<rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/>',
+ 'laptop': '<path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>',
+ 'type': '<polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/>',
+ 'workflow': '<rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/>',
+ 'lock': '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+ 'eye': '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+ 'eye-off': '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+ 'at-sign': '<circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/>',
+ 'search': '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+ 'pencil': '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+ 'pin': '<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>',
+ 'copy': '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+ 'sticky-note': '<path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z"/><path d="M15 3v4a2 2 0 0 0 2 2h4"/>',
+ 'clock': '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+ 'shield-check': '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+ 'layers': '<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
+ 'check': '<path d="M20 6 9 17l-5-5"/>'
+};
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`;
+function hydrateIcons(root = document) {
+    $$('i[data-i]', root).forEach(el => { el.outerHTML = ic(el.dataset.i, el.className); });
+}
+
+// ---------- persistent storage layer ----------
+const Store = {
+    db: null, mem: {}, mode: 'memory', warned: false,
+    async init() {
+        let ok = false;
+        try {
+            ok = await new Promise(res => {
+                let done = false;
+                const finish = v => { if (!done) { done = true; res(v); } };
+                const req = indexedDB.open('vfstr_placement_os', 1);
+                req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains('kv')) req.result.createObjectStore('kv'); };
+                req.onsuccess = () => { if (!done) this.db = req.result; finish(true); };
+                req.onerror = () => finish(false);
+                req.onblocked = () => finish(false);
+                setTimeout(() => finish(false), 4000);
+            });
+        } catch (e) { ok = false; }
+        if (ok && this.db) {
+            this.mode = 'IndexedDB';
+            await new Promise(res => {
+                try {
+                    const rq = this.db.transaction('kv', 'readonly').objectStore('kv').openCursor();
+                    rq.onsuccess = () => { const c = rq.result; if (c) { this.mem[c.key] = c.value; c.continue(); } else res(); };
+                    rq.onerror = () => res();
+                } catch (e) { res(); }
+            });
+        } else {
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('vfstr:')) this.mem[k.slice(6)] = JSON.parse(localStorage.getItem(k));
+                }
+                this.mode = 'localStorage (fallback)';
+            } catch (e) { this.mode = 'memory only (this session)'; }
+        }
+    },
+    get(k, d) { return k in this.mem ? this.mem[k] : d; },
+    set(k, v) {
+        this.mem[k] = v;
+        try {
+            if (this.db) {
+                const tx = this.db.transaction('kv', 'readwrite');
+                tx.objectStore('kv').put(v, k);
+                tx.onerror = tx.onabort = () => this.fail();
+            } else if (this.mode.startsWith('localStorage')) {
+                localStorage.setItem('vfstr:' + k, JSON.stringify(v));
+            }
+        } catch (e) { this.fail(); }
+    },
+    del(k) {
+        delete this.mem[k];
+        try {
+            if (this.db) this.db.transaction('kv', 'readwrite').objectStore('kv').delete(k);
+            else if (this.mode.startsWith('localStorage')) localStorage.removeItem('vfstr:' + k);
+        } catch (e) {}
+    },
+    keys() { return Object.keys(this.mem); },
+    fail() {
+        if (this.warned) return; this.warned = true;
+        showToast('Storage is full or blocked on this device — export a backup', 'x', 'var(--danger)');
+    }
+};
+
+// ---------- app state ----------
+const S = { user: null, tasks: [], notes: [], log: [], resume: {}, month: new Date(), settingsTab: 'profile', noteQ: '', noteTag: 'All', editNote: null, logQ: '', logShown: 50, openRaw: {} };
+const K = name => `u/${S.user}/${name}`;
+const saveTasks  = () => Store.set(K('tasks'), S.tasks);
+const saveNotes  = () => Store.set(K('notes'), S.notes);
+const saveLog    = () => Store.set(K('log'), S.log);
+const saveResume = () => Store.set(K('resume'), S.resume);
+let dlCap = null;
+
+function logEvent(type, msg) {
+    S.log.push({ id: uid(), t: Date.now(), type, msg });
+    saveLog();
+}
+
+// ---------- toast / modals ----------
+function showToast(msg, icon = 'check-circle', color = 'var(--apti)') {
+    const box = $('#toast-container');
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = `${ic(icon)}<span>${esc(msg)}</span>`;
+    el.querySelector('.ic').style.color = color;
+    box.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+}
+function showModal(id) { const bg = $('#' + id); bg.style.display = 'flex'; setTimeout(() => bg.classList.add('show'), 10); }
+function hideModal(id) { const bg = $('#' + id); bg.classList.remove('show'); setTimeout(() => { if (!bg.classList.contains('show')) bg.style.display = 'none'; }, 300); }
+let _confirmRes = null;
+function askConfirm(title, msg, okText = 'Confirm', danger = true) {
+    return new Promise(res => {
+        if (_confirmRes) _confirmRes(false);
+        _confirmRes = res;
+        $('#confirm-title').textContent = title;
+        $('#confirm-msg').textContent = msg;
+        const ok = $('#confirm-ok'); ok.textContent = okText;
+        ok.className = 'btn-add ' + (danger ? 'red' : '');
+        showModal('confirm-bg');
+    });
+}
+function resolveConfirm(v) { hideModal('confirm-bg'); if (_confirmRes) { _confirmRes(v); _confirmRes = null; } }
+async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    try {
+        const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+    } catch (e) { return false; }
+}
+
+// ---------- theme ----------
+function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    const slot = $('#theme-icon-slot') || $('.theme-btn .ic');
+    const btn = $('.theme-btn');
+    if (btn) { const svg = btn.querySelector('.ic'); if (svg) svg.outerHTML = ic(t === 'dark' ? 'sun' : 'moon'); }
+    const txt = $('#theme-text'); if (txt) txt.textContent = t === 'dark' ? 'Light Mode' : 'Dark Mode';
+}
+function toggleTheme() {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    Store.set('theme', next);
+    try { localStorage.setItem('vfstr_theme', next); } catch (e) {}
+    applyTheme(next);
+    if (S.user) logEvent('settings', `Switched to ${next} mode`);
+    showToast(`Switched to ${next} mode`, next === 'dark' ? 'moon' : 'sun', 'var(--primary)');
+    if (S.user && S.settingsTab === 'activity') renderSettings();
+}
+
+// ---------- auth ----------
+async function hashPw(pw, salt) {
+    try {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + pw));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch (e) { return 'plain:' + pw; }
+}
+function authMsg(id, msg, ok) {
+    const el = $('#' + id); el.textContent = msg; el.style.display = 'block';
+    if (!ok) setTimeout(() => { el.style.display = 'none'; }, 3800);
+}
+function switchAuthTab(tab) {
+    $('#form-login').hidden = tab !== 'login';
+    $('#form-register').hidden = tab !== 'register';
+    $('#tab-login').classList.toggle('active', tab === 'login');
+    $('#tab-register').classList.toggle('active', tab === 'register');
+}
+function showAuth(tab) {
+    $('#app-shell').hidden = true; $('#auth-screen').hidden = false; switchAuthTab(tab);
+}
+async function handleRegister() {
+    const name = $('#reg-name').value.trim();
+    const username = $('#reg-username').value.trim().toLowerCase();
+    const pw = $('#reg-password').value;
+    if (!name || !username || !pw) return authMsg('reg-error', 'All fields are required.');
+    if (!/^[a-z0-9._-]{3,30}$/.test(username)) return authMsg('reg-error', 'Username: 3–30 letters, numbers, . _ - only.');
+    if (pw.length < 6) return authMsg('reg-error', 'Password must be at least 6 characters.');
+    const users = Store.get('users', {});
+    if (users[username]) return authMsg('reg-error', 'Username already exists. Choose another or log in.');
+    const salt = uid();
+    users[username] = { name, username, salt, hash: await hashPw(pw, salt), created: Date.now() };
+    Store.set('users', users);
+    // seed starter syllabus for this user
+    const seed = [
+        ['Time & Work (IndiaBix)', 'Aptitude'], ['Percentages & Ratios', 'Aptitude'], ['Speed, Distance & Time', 'Aptitude'], ['Profit & Loss', 'Aptitude'],
+        ['Logical: Blood Relations', 'Aptitude'], ['Logical: Syllogisms', 'Aptitude'],
+        ['Arrays: Two Pointers', 'DSA'], ['Arrays: Sorting & Searching', 'DSA'], ['String Manipulation', 'DSA'], ['HashMaps & Frequencies', 'DSA'], ['Linked List Basics', 'DSA'],
+        ['OOPs: 4 Pillars & Examples', 'Core CS'], ['DBMS: Normalization (1NF-3NF)', 'Core CS'], ['DBMS: SQL JOINs Practice', 'Core CS'], ['OS: Deadlocks & Paging', 'Core CS'], ['CN: OSI Model & TCP/UDP', 'Core CS'],
+        ["HR: 'Tell me about yourself'", 'Interviews'], ['Resume: Update GitHub & LinkedIn', 'Interviews']
+    ].map(([name, category]) => ({ id: uid(), name, category, history: {} }));
+    Store.set(`u/${username}/tasks`, seed);
+    Store.set(`u/${username}/notes`, []);
+    Store.set(`u/${username}/resume`, {});
+    Store.set(`u/${username}/log`, [{ id: uid(), t: Date.now(), type: 'account', msg: 'Account created with starter syllabus (18 tasks)' }]);
+    authMsg('reg-success', `Account created! Welcome, ${name}.`, true);
+    $('#reg-name').value = $('#reg-username').value = $('#reg-password').value = '';
+    setTimeout(() => { $('#reg-success').style.display = 'none'; enterApp(username); }, 700);
+}
+async function handleLogin() {
+    const username = $('#login-username').value.trim().toLowerCase();
+    const pw = $('#login-password').value;
+    if (!username || !pw) return authMsg('login-error', 'Please enter your username and password.');
+    const u = Store.get('users', {})[username];
+    if (u && (await hashPw(pw, u.salt)) === u.hash) {
+        $('#login-password').value = '';
+        enterApp(username, true);
+    } else authMsg('login-error', 'Incorrect username or password (or account does not exist).');
+}
+function enterApp(username, fresh) {
+    S.user = username;
+    S.tasks = Store.get(K('tasks'), []);
+    S.notes = Store.get(K('notes'), []);
+    S.log = Store.get(K('log'), []);
+    S.resume = Store.get(K('resume'), {});
+    S.month = new Date(); S.settingsTab = 'profile'; S.editNote = null; S.noteQ = ''; S.noteTag = 'All'; S.logQ = ''; S.logShown = 50; S.openRaw = {};
+    Store.set('session', username);
+    if (fresh) logEvent('account', 'Logged in');
+    $('#auth-screen').hidden = true; $('#app-shell').hidden = false;
+    renderAll();
+    showView('dashboard');
+}
+function logout() {
+    logEvent('account', 'Logged out');
+    Store.set('session', null);
+    S.user = null;
+    closeSidebar();
+    showAuth('login');
+    $('#login-username').value = '';
+}
+
+// ---------- navigation ----------
+function showView(id) {
+    $$('.view').forEach(v => v.classList.remove('active'));
+    $$('[data-act="view"]').forEach(b => b.classList.toggle('active', b.dataset.view === id));
+    $('#view-' + id).classList.add('active');
+    closeSidebar();
+    if (id === 'settings') renderSettings();
+    $('#main-area').scrollTo(0, 0);
+}
+function toggleSidebar() { $('#sidebar').classList.toggle('open'); $('#sidebar-overlay').classList.toggle('active'); }
+function closeSidebar() { $('#sidebar').classList.remove('open'); $('#sidebar-overlay').classList.remove('active'); }
+
+function toggleAcc(head) {
+    const body = head.nextElementSibling, chev = head.querySelector('.acc-chevron');
+    const isOpen = body.style.maxHeight && body.style.maxHeight !== '0px';
+    $$('.acc-body').forEach(b => { b.style.maxHeight = '0px'; b.style.paddingBottom = '0'; });
+    $$('.acc-chevron').forEach(c => c.style.transform = 'rotate(0deg)');
+    $$('.acc-item').forEach(i => i.style.borderColor = 'var(--border)');
+    if (!isOpen) {
+        body.style.maxHeight = body.scrollHeight + 60 + 'px';
+        body.style.paddingBottom = '24px';
+        chev.style.transform = 'rotate(180deg)';
+        head.parentElement.style.borderColor = 'var(--primary)';
+    }
+}
+
+// ---------- countdown & quote ----------
+function tickCountdown() {
+    const d = new Date('May 1, 2027 00:00:00').getTime() - Date.now();
+    const v = d > 0 ? d : 0;
+    $('#days-left').textContent = pad2(Math.floor(v / 864e5));
+    $('#hours-left').textContent = pad2(Math.floor((v % 864e5) / 36e5));
+    $('#mins-left').textContent = pad2(Math.floor((v % 36e5) / 6e4));
+}
+function setDailyQuote() {
+    const q = ["Target: Clear Mass Recruiters (TCS/Wipro/Infosys) by May 2027. 🎯", "Consistency is harder when no one is watching. Keep coding. 💻", "Aptitude is about speed. DSA is about patterns. Master both. ⚡", "Your resume gets you the interview. Your skills get you the job. 📄", "Don't memorize code. Understand the logic behind it. 🧠", "Small daily progress > massive weekend cramming. 📈"];
+    $('#daily-quote').textContent = q[Math.floor(Math.random() * q.length)];
+}
+
+// ---------- dashboard ----------
+function renderDashboard() {
+    const ts = todayStr(), list = $('#today-list');
+    $('#today-date').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    if (!S.tasks.length) {
+        list.innerHTML = `<div class="empty">${ic('list-checks')}<p>No tasks yet. Add one to get started!</p></div>`;
+    } else {
+        list.innerHTML = S.tasks.map(t => `
+            <label class="task-item"><div class="task-cb-wrap">
+                <input type="checkbox" class="task-cb" data-act="toggle" data-id="${esc(t.id)}" data-date="${ts}" ${t.history[ts] ? 'checked' : ''}>
+                <div class="task-info"><span class="task-name">${esc(t.name)}</span><span class="task-cat ${catClass(t.category)}">${esc(t.category)}</span></div>
+            </div></label>`).join('');
+    }
+    updateRings();
+}
+function updateRings() {
+    const now = new Date(), y = now.getFullYear(), m = now.getMonth(), dim = new Date(y, m + 1, 0).getDate();
+    const st = { 'Aptitude': { c: 0, t: 0 }, 'DSA': { c: 0, t: 0 }, 'Core CS': { c: 0, t: 0 } };
+    let tc = 0, tt = 0;
+    S.tasks.forEach(t => {
+        const cat = st[t.category] ? t.category : 'Core CS';
+        st[cat].t += dim; tt += dim;
+        for (let d = 1; d <= dim; d++) if (t.history[`${y}-${pad2(m + 1)}-${pad2(d)}`]) { st[cat].c++; tc++; }
+    });
+    setRing('apti', st['Aptitude'].c, st['Aptitude'].t);
+    setRing('dsa', st['DSA'].c, st['DSA'].t);
+    setRing('core', st['Core CS'].c, st['Core CS'].t);
+    setRing('overall', tc, tt);
+}
+function setRing(id, c, t) {
+    const pct = t > 0 ? Math.round((c / t) * 100) : 0;
+    $(`#${id}-pct`).textContent = pct + '%';
+    const circle = $(`#${id}-ring`), circ = 2 * Math.PI * 38;
+    circle.style.strokeDasharray = circ;
+    circle.style.strokeDashoffset = circ - (pct / 100) * circ;
+}
+
+// ---------- tracker ----------
+function renderTracker() {
+    const now = new Date(), cm = S.month;
+    $('#month-tabs').innerHTML = Array.from({ length: 6 }, (_, i) => {
+        const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        const act = d.getMonth() === cm.getMonth() && d.getFullYear() === cm.getFullYear() ? 'active' : '';
+        return `<button class="m-tab ${act}" data-act="month" data-y="${d.getFullYear()}" data-m="${d.getMonth()}">${d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</button>`;
+    }).join('');
+    const y = cm.getFullYear(), m = cm.getMonth(), dim = new Date(y, m + 1, 0).getDate();
+    let head = '<tr><th class="t-name">Task Name</th><th>Category</th>';
+    for (let d = 1; d <= dim; d++) head += `<th>${d}</th>`;
+    $('#t-head').innerHTML = head + '<th>Act</th></tr>';
+    if (!S.tasks.length) {
+        $('#t-body').innerHTML = `<tr><td colspan="${dim + 3}" style="padding:30px;">No tasks found. Add a task to start tracking.</td></tr>`;
+        return;
+    }
+    $('#t-body').innerHTML = S.tasks.map(t => {
+        let r = `<tr><td class="t-name">${esc(t.name)}</td><td><span class="task-cat ${catClass(t.category)}">${esc(t.category)}</span></td>`;
+        for (let d = 1; d <= dim; d++) {
+            const ds = `${y}-${pad2(m + 1)}-${pad2(d)}`;
+            r += `<td><input type="checkbox" class="t-cb" data-act="toggle" data-id="${esc(t.id)}" data-date="${ds}" ${t.history[ds] ? 'checked' : ''}></td>`;
+        }
+        return r + `<td><button class="del-btn" data-act="del-task" data-id="${esc(t.id)}" title="Delete Task" aria-label="Delete task">${ic('trash')}</button></td></tr>`;
+    }).join('');
+}
+
+// ---------- task actions ----------
+function toggleTask(id, ds, val) {
+    const t = S.tasks.find(x => x.id === id); if (!t) return;
+    if (val) t.history[ds] = true; else delete t.history[ds];
+    saveTasks();
+    logEvent('check', `${val ? 'Completed' : 'Unchecked'}: ${t.name} (${ds})`);
+    $$('input[data-act="toggle"]').forEach(cb => { if (cb.dataset.id === id && cb.dataset.date === ds) cb.checked = !!val; });
+    updateRings();
+    if (val) showToast(`Completed: ${t.name}`, 'flame', 'var(--core)');
+    if (S.settingsTab && $('#view-settings').classList.contains('active')) renderSettings();
+}
+async function deleteTask(id) {
+    const t = S.tasks.find(x => x.id === id); if (!t) return;
+    if (!(await askConfirm('Delete this task?', `"${t.name}" and all of its check-in history will be removed.`, 'Delete'))) return;
+    S.tasks = S.tasks.filter(x => x.id !== id);
+    saveTasks(); logEvent('task', `Deleted task: ${t.name}`);
+    renderDashboard(); renderTracker();
+    showToast('Task deleted', 'trash', 'var(--danger)');
+}
+function addTask(e) {
+    e.preventDefault();
+    const name = $('#task-name').value.trim(); if (!name) return;
+    const category = $('#task-cat').value;
+    S.tasks.push({ id: uid(), name, category, history: {} });
+    saveTasks(); logEvent('task', `Added task: ${name} [${category}]`);
+    closeTaskModal(); e.target.reset();
+    renderDashboard(); renderTracker();
+    showToast('New task added!', 'plus', 'var(--primary)');
+}
+function openTaskModal() { showModal('task-bg'); setTimeout(() => $('#task-name').focus(), 60); }
+function closeTaskModal() { hideModal('task-bg'); }
+
+// ---------- static content ----------
+const COMPANIES = [
+ { name: 'Tata Consultancy Services (TCS)', mark: 'T', color: '#2563eb', role: 'Ninja (3.36L)  |  Digital (7L)  |  Prime (9L)', rounds: [
+   { label: 'Round 1 — Online Test (NQT)', title: 'TCS NQT — National Qualifier Test (166 Mins)', paras: [
+     '<strong>Part A — Foundation (75 Mins) [For Ninja 3.36L]:</strong><br>• Numerical Ability: 20 Qs / 25 mins — Percentages, Time &amp; Work, P&amp;L, Speed-Distance<br>• Verbal Ability: 25 Qs / 25 mins — Reading Comprehension, Sentence Correction, Fill in blanks<br>• Reasoning: 20 Qs / 25 mins — Blood Relations, Coding-Decoding, Series, Directions',
+     '<strong>Part B — Advanced (90 Mins) [For Digital 7L &amp; Prime 9L]:</strong><br>• Advanced Quants + Reasoning: 15 Qs / 35 mins — Data Sufficiency, Syllogisms<br>• Coding: 2 Qs / 55 mins — Medium Arrays/Strings for Digital. Hard DSA (DP/Graphs) for Prime.'],
+     links: [['TCS NQT Syllabus & Mock Tests', 'https://prepinsta.com/tcs-nqt/'], ['Aptitude Practice (IndiaBix)', 'https://www.indiabix.com/']] },
+   { label: 'Round 2 — Interview', title: 'Technical + HR Interview (45 Mins)', paras: [
+     '<strong>Technical Questions They Ask:</strong><br>• Explain 4 pillars of OOPs with real-world examples<br>• Write a SQL query to find the 2nd highest salary<br>• Explain your B.Tech project — what problem it solves, your role, tech used',
+     '<strong>HR Questions:</strong> "Tell me about yourself", "Why TCS?", "Willing to relocate?"<br><strong>⚠️ Warning:</strong> Only write skills on your resume that you can fully explain.'],
+     links: [['TCS Interview Experiences (GFG)', 'https://www.geeksforgeeks.org/tcs-interview-experience/']] } ] },
+ { name: 'Wipro', mark: 'W', color: '#10b981', role: 'Elite — 3.5 LPA  |  Turbo — 6.5 LPA', rounds: [
+   { label: 'Round 1 — Online Test (NLTH)', title: 'NLTH — National Level Talent Hunt (128 Mins)', paras: [
+     '<strong>Aptitude Test (48 Mins):</strong><br>• Logical Reasoning: 14 Qs / 14 mins<br>• Quantitative Aptitude: 16 Qs / 16 mins<br>• Verbal Ability: 22 Qs / 18 mins',
+     '<strong>Written Communication Test (20 Mins):</strong> Type a 200-400 word essay on a random topic. AI auto-grades grammar, spelling, punctuation.',
+     '<strong>Coding Test (60 Mins):</strong> 2 problems. Basic Arrays/Strings.'],
+     links: [['Wipro NLTH (PrepInsta)', 'https://prepinsta.com/wipro-nlth/']] },
+   { label: 'Round 2 — Technical Interview', title: 'Technical Interview (20–30 Mins)', paras: [
+     '<strong>Topics Asked:</strong><br>• OOPs — Abstraction vs Encapsulation<br>• Difference between Java and C++<br>• DBMS — What is ACID, Normalisation?'],
+     links: [['Wipro Interview Exp. (GFG)', 'https://www.geeksforgeeks.org/wipro-interview-experience/']] },
+   { label: 'Round 3 — HR Interview', title: 'HR Interview (10–15 Mins)', paras: [
+     '<strong>Questions Asked:</strong><br>• "Tell me about yourself"<br>• "Wipro has a 1-year service bond. Are you OK with it?" — Always say YES.'],
+     links: [['HR Question Bank (IndiaBix)', 'https://www.indiabix.com/hr-interview/questions-and-answers/']] } ] },
+ { name: 'Cognizant', mark: 'C', color: '#1e40af', role: 'GenC (4 LPA)  |  GenC Elevate (4.5L)', rounds: [
+   { label: 'Round 1 — AMCAT', title: 'AMCAT Online Assessment (100 Mins)', paras: [
+     '<strong>GenC Profile:</strong><br>• Quantitative: 25 Qs / 35 mins<br>• Logical Reasoning: 35 Qs / 45 mins<br>• Verbal: 20 Qs / 20 mins<br>• Automata Fix (Debugging): 7 Qs / 20 mins'],
+     links: [['Cognizant AMCAT (PrepInsta)', 'https://prepinsta.com/cognizant/']] },
+   { label: 'Round 2 — Technical + HR', title: 'Technical + HR Interview (30 Mins)', paras: [
+     '<strong>Technical Questions:</strong><br>• DBMS — Write a JOIN query live on paper<br>• OOPs in Java — What is Polymorphism?<br><strong>⚠️ Cognizant is VERY heavy on DBMS. Practice writing SQL queries on paper.</strong>'],
+     links: [['Master SQL JOINs (GFG)', 'https://www.geeksforgeeks.org/sql-join-set-1-inner-left-right-and-full-joins/']] } ] },
+ { name: 'Infosys', mark: 'I', color: '#0072c6', role: 'System Engineer (3.6L)  |  DSE (5L)', rounds: [
+   { label: 'Round 1 — Online Test', title: 'HackerRank Platform (100 Mins)', paras: [
+     '• Reasoning Ability: 15 Qs / 25 mins<br>• Mathematical Ability: 10 Qs / 35 mins<br>• Verbal Ability: 20 Qs / 20 mins<br>• Pseudo-code: 5 Qs / 10 mins<br>• Puzzle Solving: 4 Qs / 10 mins<br><strong>⚠️ Infosys Math is the hardest among mass recruiters. Practice Data Interpretation.</strong>'],
+     links: [['Infosys Prep (PrepInsta)', 'https://prepinsta.com/infosys/']] },
+   { label: 'Round 2 — Tech + HR', title: 'Technical + HR Interview (20–30 Mins)', paras: [
+     '<strong>Topics Asked:</strong><br>• SDLC — Agile vs Waterfall<br>• DBMS — Normalisation with example tables<br>• "Write a program to check if a number is prime" (pen &amp; paper)'],
+     links: [['SDLC & Agile Guide (GFG)', 'https://www.geeksforgeeks.org/software-engineering/']] } ] },
+ { name: 'Capgemini', mark: 'C', color: '#00afd7', role: 'Analyst (3.8L)  |  Senior Analyst (7L)', rounds: [
+   { label: 'Round 1 — Game-Based', title: 'Game-Based Assessment (90 Mins)', paras: [
+     '• Game-Based Psychometric: 7–9 mini-games testing memory and patterns<br>• Behavioural Competency: Choose professional responses<br>• Quantitative Aptitude: 16 Qs<br>• Logical Reasoning: 18 Qs'],
+     links: [['Capgemini Full Prep (PrepInsta)', 'https://prepinsta.com/capgemini/']] },
+   { label: 'Round 2 & 3 — Interviews', title: 'Technical + HR Interviews', paras: [
+     '<strong>Topics Asked:</strong><br>• OOPs — classes, objects, constructors<br>• SQL — Write a query using GROUP BY<br>• HR — "Why Capgemini?", "Comfortable with shifts?"'], links: [] } ] },
+ { name: 'Accenture', mark: 'A', color: '#a200ff', role: 'ASE (4.5L)  |  SE (6.5L)', rounds: [
+   { label: 'Round 1 — Cognitive Test', title: 'Cognitive & Technical Assessment (90 Mins)', paras: [
+     '• Cognitive Ability: 50 Qs / 50 mins — Very fast-paced.<br>• Communication Assessment: 20 Qs / 20 mins — Email writing, grammar<br>• Technical Assessment: 40 Qs / 40 mins — DSA MCQ, OOPs, CN'],
+     links: [['Accenture Full Prep (PrepInsta)', 'https://prepinsta.com/accenture/']] },
+   { label: 'Round 2 — Coding & Interview', title: 'Coding (45 Mins) + Interview (30 Mins)', paras: [
+     '• 2 coding problems. Easy to Medium. Partial marks are given!<br>• Interview focuses heavily on OOPs, REST API, HTTP vs HTTPS, and your project.'],
+     links: [['LeetCode Easy Problems', 'https://leetcode.com/problemset/all/?difficulty=EASY']] } ] }
+];
+
+const RESOURCES = [
+ { t: 'TCS NQT Preparation', d: 'Syllabus, previous year Qs, and mock tests for TCS Ninja and Digital profiles.', u: 'https://prepinsta.com/tcs-nqt/', cta: 'Go to PrepInsta', mark: 'T', color: '#2563eb' },
+ { t: 'Wipro NLTH Preparation', d: "Logical reasoning and coding patterns for Wipro's National Level Talent Hunt.", u: 'https://prepinsta.com/wipro-nlth/', cta: 'Go to PrepInsta', mark: 'W', color: '#10b981' },
+ { t: 'Cognizant AMCAT', d: 'Aptitude, Automata Fix (Debugging), and SQL preparation for GenC roles.', u: 'https://prepinsta.com/cognizant/', cta: 'Go to PrepInsta', mark: 'C', color: '#1e40af' },
+ { t: 'Infosys Preparation', d: 'Pseudo-code, mathematical puzzles, and verbal reasoning practice.', u: 'https://prepinsta.com/infosys/', cta: 'Go to PrepInsta', icon: 'building', color: '#0072c6' },
+ { t: 'IndiaBix (Aptitude Bible)', d: 'Best free resource for Quant, Logical Reasoning, and Verbal Ability practice.', u: 'https://www.indiabix.com/', cta: 'Go to IndiaBix', icon: 'lightbulb', color: '#2563eb' },
+ { t: "Striver's A2Z DSA Sheet", d: 'The only coding sheet you need. Focus on Easy + Medium for mass recruiters.', u: 'https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/', cta: 'Go to takeUforward', icon: 'code', color: '#2563eb' },
+ { t: 'LeetCode Easy', d: 'Practice basic arrays and strings. A must for clearing the Round 1 coding section.', u: 'https://leetcode.com/problemset/all/?difficulty=EASY', cta: 'Go to LeetCode', icon: 'laptop', color: '#f59e0b' },
+ { t: 'GeeksforGeeks Core CS', d: 'Read the short notes for DBMS, OS, and CN. Essential for technical interviews.', u: 'https://www.geeksforgeeks.org/dbms/', cta: 'Go to GFG', icon: 'server', color: '#10b981' },
+ { t: 'W3Schools SQL Tutorial', d: "Master SELECT, JOIN, GROUP BY, HAVING. Write queries, don't just read them.", u: 'https://www.w3schools.com/sql/', cta: 'Go to W3Schools', icon: 'database', color: '#2563eb' }
+];
+
+const RESUME_SECTIONS = [
+ { t: '1. Header & Contact', d: 'Make sure recruiters can reach you easily without cluttering the top.', icon: 'type', cls: 'primary', items: ['Professional Email (no nicknames)', 'Active Phone Number', 'Clickable LinkedIn URL', 'Clickable GitHub/Portfolio URL'] },
+ { t: '2. Education Section', d: 'Highlight your CGPA as mass recruiters have strict cut-offs (usually 60% or 6.0+).', icon: 'graduation-cap', cls: 'dsa', items: ['B.Tech CSE - VFSTR with CGPA', '12th / Diploma with Percentage', '10th Standard with Percentage', 'Reverse chronological order (latest first)'] },
+ { t: '3. Technical Skills', d: 'Only list what you actually know. If you list Java, you WILL be asked Java OOPs.', icon: 'laptop', cls: 'core', items: ['Languages: C++, Java, or Python (Max 2 strong ones)', 'Core Subjects: DBMS, OS, CN, OOPS', 'Developer Tools: Git, VS Code, SQL'] },
+ { t: '4. Projects & Formatting', d: 'Crucial for your Technical Interview. Be ready to explain the architecture.', icon: 'workflow', cls: 'hr', items: ['2 strong projects with Tech Stack mentioned', 'Used "Action Verbs" (e.g., Developed, Optimized)', 'Saved as PDF format (not Word)', 'Strictly One Page length'] }
+];
+
+const HR_QS = [
+ { q: '1. "Tell me about yourself."', h: '<p><strong>How to answer:</strong> This is a 1.5 to 2-minute elevator pitch. Don\'t recite your resume. Structure it as:</p><ul><li><strong>Present:</strong> Who you are (B.Tech CSE 3rd Year at VFSTR).</li><li><strong>Past:</strong> Briefly mention your technical interests or a key project you built.</li><li><strong>Future:</strong> Why you are sitting for this interview (e.g., looking to start your career as a software engineer at a reputed firm like theirs).</li></ul><p><em>Never talk about your family background unless explicitly asked.</em></p>' },
+ { q: '2. "Are you willing to relocate to any part of India?"', h: '<p><strong>How to answer:</strong> <strong>ALWAYS SAY YES.</strong></p><p>Mass recruiters have offices across India. If you show hesitation about moving out of your home state, it is an instant red flag and often an instant rejection. Say, <em>"Yes, I am very flexible and excited about the opportunity to work in different cities and experience new work cultures."</em></p>' },
+ { q: '3. "Are you comfortable with night shifts and a 1-year bond?"', h: '<p><strong>How to answer:</strong> <strong>ALWAYS SAY YES.</strong></p><p>TCS and Wipro have mandatory 1-year service agreements (bonds). Just agree to it. Same goes for night shifts—even if you might never get a night shift project, saying \'No\' during the interview shows lack of flexibility.</p>' },
+ { q: '4. "Where do you see yourself in 5 years?"', h: '<p><strong>How to answer:</strong> Show ambition but also loyalty. Do NOT say "I want to do my Master\'s" or "I want to start my own business" (they will think you\'ll leave the company soon).</p><p><em>"In five years, I see myself as a seasoned Senior Software Engineer, having deep expertise in the technologies I am working on. I want to take on leadership responsibilities, mentoring juniors, and driving key projects for the company."</em></p>' },
+ { q: '5. "Why should we hire you?"', h: '<p><strong>How to answer:</strong> Connect your skills with the company\'s needs.</p><p><em>"You should hire me because I have a strong foundation in core computer science subjects like Java and DBMS, which are critical for the role. Moreover, my recent project taught me how to work consistently under deadlines. I am a quick learner and highly adaptable, which makes me a great fit for your dynamic work environment."</em></p>' }
+];
+
+function renderStatic() {
+    $('#company-list').innerHTML = COMPANIES.map(c => `
+        <div class="acc-item glass">
+            <div class="acc-head" data-act="acc">
+                <div class="acc-left">
+                    <div class="acc-icon-box" style="background:${c.color}1f;color:${c.color}">${esc(c.mark)}</div>
+                    <div><div class="acc-name">${esc(c.name)}</div><div class="acc-role">${esc(c.role)}</div></div>
+                </div>
+                <div class="acc-right"><span class="rounds-badge">${c.rounds.length} Rounds</span>${ic('chevron-down', 'acc-chevron')}</div>
+            </div>
+            <div class="acc-body">${c.rounds.map(r => `
+                <div class="round-card">
+                    <div class="round-label">${esc(r.label)}</div>
+                    <div class="round-info"><h4>${esc(r.title)}</h4>${r.paras.map(p => `<p>${p}</p>`).join('')}
+                    ${r.links && r.links.length ? `<div class="prep-links"><span class="prep-title">${ic('book-open')} Prepare this round:</span>${r.links.map(l => `<a href="${esc(l[1])}" target="_blank" rel="noopener" class="study-btn">${ic('external-link')} ${esc(l[0])}</a>`).join('')}</div>` : ''}
+                    </div>
+                </div>`).join('')}
+            </div>
+        </div>`).join('');
+
+    $('#res-grid').innerHTML = RESOURCES.map(r => `
+        <a href="${esc(r.u)}" target="_blank" rel="noopener" class="res-card glass">
+            <div class="res-icon-box" style="background:${r.color}1f;color:${r.color}">${r.mark ? esc(r.mark) : ic(r.icon)}</div>
+            <h3>${esc(r.t)}</h3><p>${esc(r.d)}</p>
+            <span class="res-cta">${esc(r.cta)} ${ic('arrow-right')}</span>
+        </a>`).join('');
+
+    $('#hr-list').innerHTML = HR_QS.map(h => `
+        <div class="acc-item glass">
+            <div class="acc-head" data-act="acc"><div class="acc-left"><div class="acc-name">${esc(h.q)}</div></div><div class="acc-right">${ic('chevron-down', 'acc-chevron')}</div></div>
+            <div class="acc-body"><div class="round-card"><div class="round-info">${h.h}</div></div></div>
+        </div>`).join('');
+}
+
+function renderResume() {
+    $('#resume-grid').innerHTML = RESUME_SECTIONS.map((s, si) => {
+        const done = s.items.filter((_, ii) => S.resume[`${si}-${ii}`]).length;
+        return `<div class="pb-card glass c-${s.cls}">
+            <div class="pb-icon pb-${s.cls}">${ic(s.icon)}</div>
+            <h3>${esc(s.t)}</h3><p>${esc(s.d)}</p>
+            <div class="check-count" id="rc-${si}">${done} / ${s.items.length} done</div>
+            <div class="checklist">${s.items.map((it, ii) => `
+                <label class="check-row"><input type="checkbox" data-act="resume" data-key="${si}-${ii}" data-sec="${si}" ${S.resume[`${si}-${ii}`] ? 'checked' : ''}> <span>${esc(it)}</span></label>`).join('')}</div>
+        </div>`;
+    }).join('');
+}
+function toggleResume(key, sec, val) {
+    if (val) S.resume[key] = true; else delete S.resume[key];
+    saveResume();
+    const s = RESUME_SECTIONS[sec];
+    const done = s.items.filter((_, ii) => S.resume[`${sec}-${ii}`]).length;
+    $('#rc-' + sec).textContent = `${done} / ${s.items.length} done`;
+    logEvent('resume', `${val ? 'Ticked' : 'Unticked'} resume item: ${s.items[Number(key.split('-')[1])]}`);
+}
+
+// =====================================================================
+//  SETTINGS  — profile, memory vault, data explorer, activity, backup
+// =====================================================================
+const STABS = [['profile', 'user', 'Profile'], ['vault', 'sticky-note', 'Memory Vault'], ['data', 'database', 'Data & Storage'], ['activity', 'clock', 'Activity'], ['backup', 'download', 'Backup & Reset']];
+const NOTE_TAGS = ['Note', 'Interview', 'Aptitude', 'Coding', 'Resume', 'Link', 'Idea'];
+
+function renderSettings() {
+    $('#s-tabs').innerHTML = STABS.map(([id, icon, label]) => `<button class="s-tab ${S.settingsTab === id ? 'active' : ''}" data-act="stab" data-tab="${id}">${ic(icon)} ${label}</button>`).join('');
+    ({ profile: renderProfileTab, vault: renderVaultTab, data: renderDataTab, activity: renderActivityTab, backup: renderBackupTab })[S.settingsTab]();
+}
+function currentUserRec() { return Store.get('users', {})[S.user] || {}; }
+
+function renderProfileTab() {
+    const u = currentUserRec();
+    $('#settings-body').innerHTML = `
+    <div class="two-col">
+        <div class="panel glass">
+            <div class="profile-row"><div class="big-avatar">${ic('graduation-cap')}</div>
+                <div style="min-width:0"><h3>${esc(u.name || S.user)}</h3><p>@${esc(S.user)}</p></div></div>
+            <div class="kv">
+                <div><span>Target Goal</span><b>Mass Recruiters</b></div>
+                <div><span>Deadline</span><b>May 2027</b></div>
+                <div><span>Member since</span><b>${u.created ? fmtDate(u.created) : '—'}</b></div>
+            </div>
+            <label class="field"><span>Display name</span><input type="text" id="set-name" value="${esc(u.name || '')}" maxlength="60"></label>
+            <button class="btn-add" data-act="save-name">${ic('check')} Save name</button>
+        </div>
+        <div class="panel glass">
+            <h3>${ic('lock')} Change password</h3>
+            <p class="muted">Passwords are stored as a salted SHA-256 hash on this device — never as plain text.</p>
+            <label class="field"><span>Current password</span><input type="password" id="pw-old" autocomplete="current-password"></label>
+            <label class="field"><span>New password (min 6 characters)</span><input type="password" id="pw-new" autocomplete="new-password"></label>
+            <div class="btn-row">
+                <button class="btn-add" data-act="save-pw">${ic('shield-check')} Update password</button>
+                <button class="btn-add red" data-act="logout">${ic('log-out')} Switch Profile / Logout</button>
+            </div>
+        </div>
+    </div>`;
+}
+async function saveName() {
+    const name = $('#set-name').value.trim();
+    if (!name) return showToast('Name cannot be empty', 'x', 'var(--danger)');
+    const users = Store.get('users', {}); users[S.user].name = name; Store.set('users', users);
+    logEvent('account', `Display name changed to "${name}"`);
+    showToast('Name updated', 'check-circle'); renderSettings();
+}
+async function savePw() {
+    const o = $('#pw-old').value, n = $('#pw-new').value;
+    const users = Store.get('users', {}), u = users[S.user];
+    if (n.length < 6) return showToast('New password must be 6+ characters', 'x', 'var(--danger)');
+    if ((await hashPw(o, u.salt)) !== u.hash) return showToast('Current password is incorrect', 'x', 'var(--danger)');
+    u.salt = uid(); u.hash = await hashPw(n, u.salt); Store.set('users', users);
+    logEvent('account', 'Password changed');
+    $('#pw-old').value = $('#pw-new').value = '';
+    showToast('Password updated', 'shield-check');
+}
+
+// ----- Memory vault -----
+function renderVaultTab() {
+    const ed = S.editNote ? S.notes.find(n => n.id === S.editNote) : null;
+    $('#settings-body').innerHTML = `
+    <div class="vault-grid">
+        <div class="panel glass">
+            <h3>${ic(ed ? 'pencil' : 'plus')} ${ed ? 'Edit note' : 'New memory'}</h3>
+            <p class="muted">Save anything you want to keep — interview answers, formulas, links, ideas. There is no limit on how many you store.</p>
+            <label class="field"><span>Title</span><input type="text" id="note-title" maxlength="150" placeholder="e.g., SQL 2nd highest salary" value="${esc(ed ? ed.title : '')}"></label>
+            <label class="field"><span>Category</span><select id="note-tag">${NOTE_TAGS.map(t => `<option ${ed && ed.tag === t ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+            <label class="field"><span>Content</span><textarea id="note-body" placeholder="Write here…">${esc(ed ? ed.body : '')}</textarea></label>
+            <div class="btn-row">
+                <button class="btn-add" data-act="note-save">${ic('check')} ${ed ? 'Update note' : 'Save to memory'}</button>
+                ${ed ? `<button class="btn-ghost" data-act="note-cancel">Cancel</button>` : ''}
+            </div>
+        </div>
+        <div>
+            <div class="vault-toolbar">
+                <div class="search-wrap">${ic('search')}<input type="search" id="note-search" placeholder="Search your memory…" value="${esc(S.noteQ)}"></div>
+                <div class="chips" id="note-chips"></div>
+            </div>
+            <div id="note-list"></div>
+        </div>
+    </div>`;
+    renderNoteChips(); renderNoteList();
+}
+function renderNoteChips() {
+    $('#note-chips').innerHTML = ['All', ...NOTE_TAGS].map(t => {
+        const n = t === 'All' ? S.notes.length : S.notes.filter(x => x.tag === t).length;
+        return `<button class="chip ${S.noteTag === t ? 'active' : ''}" data-act="note-filter" data-tag="${t}">${t} ${n}</button>`;
+    }).join('');
+}
+function renderNoteList() {
+    const q = S.noteQ.trim().toLowerCase();
+    const list = S.notes.filter(n => (S.noteTag === 'All' || n.tag === S.noteTag) && (!q || (n.title + ' ' + n.body).toLowerCase().includes(q)))
+        .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || b.updated - a.updated);
+    $('#note-list').innerHTML = list.length ? list.map(n => `
+        <div class="note-card glass ${n.pinned ? 'pinned' : ''}">
+            <div class="note-top"><span class="tagbadge">${esc(n.tag)}</span>
+                <div class="note-actions">
+                    <button class="icon-btn ${n.pinned ? 'on' : ''}" data-act="note-pin" data-id="${esc(n.id)}" title="${n.pinned ? 'Unpin' : 'Pin'}" aria-label="Pin">${ic('pin')}</button>
+                    <button class="icon-btn" data-act="note-copy" data-id="${esc(n.id)}" title="Copy" aria-label="Copy">${ic('copy')}</button>
+                    <button class="icon-btn" data-act="note-edit" data-id="${esc(n.id)}" title="Edit" aria-label="Edit">${ic('pencil')}</button>
+                    <button class="icon-btn danger" data-act="note-del" data-id="${esc(n.id)}" title="Delete" aria-label="Delete">${ic('trash')}</button>
+                </div></div>
+            <h4>${esc(n.title || 'Untitled')}</h4>
+            <div class="note-body">${esc(n.body)}</div>
+            <div class="note-meta">${n.updated !== n.created ? 'Edited ' : 'Saved '}${fmtDateTime(n.updated)}</div>
+        </div>`).join('')
+        : `<div class="empty glass" style="padding:48px 20px;">${ic('sticky-note')}<p>${S.notes.length ? 'No notes match your search.' : 'Your memory vault is empty. Save your first note on the left.'}</p></div>`;
+}
+function saveNote() {
+    const title = $('#note-title').value.trim(), body = $('#note-body').value, tag = $('#note-tag').value;
+    if (!title && !body.trim()) return showToast('Write a title or some content first', 'x', 'var(--danger)');
+    const now = Date.now();
+    if (S.editNote) {
+        const n = S.notes.find(x => x.id === S.editNote);
+        if (n) { n.title = title; n.body = body; n.tag = tag; n.updated = now; }
+        logEvent('note', `Edited note: ${title || '(untitled)'}`);
+        S.editNote = null; showToast('Note updated', 'check-circle');
+    } else {
+        S.notes.push({ id: uid(), title, body, tag, pinned: false, created: now, updated: now });
+        logEvent('note', `Saved note: ${title || '(untitled)'} [${tag}]`);
+        showToast('Saved to memory', 'check-circle');
+    }
+    saveNotes(); renderVaultTab();
+}
+async function deleteNote(id) {
+    const n = S.notes.find(x => x.id === id); if (!n) return;
+    if (!(await askConfirm('Delete this note?', `"${n.title || 'Untitled'}" will be permanently removed.`, 'Delete'))) return;
+    S.notes = S.notes.filter(x => x.id !== id); saveNotes();
+    logEvent('note', `Deleted note: ${n.title || '(untitled)'}`);
+    if (S.editNote === id) S.editNote = null;
+    renderVaultTab(); showToast('Note deleted', 'trash', 'var(--danger)');
+}
+
+// ----- Data & storage -----
+function streaks() {
+    const days = new Set();
+    S.tasks.forEach(t => Object.keys(t.history).forEach(d => t.history[d] && days.add(d)));
+    const sorted = [...days].sort(); let best = 0, run = 0, prev = null;
+    sorted.forEach(d => {
+        const dt = new Date(d + 'T00:00:00');
+        run = prev && Math.round((dt - prev) / 864e5) === 1 ? run + 1 : 1;
+        best = Math.max(best, run); prev = dt;
+    });
+    let cur = 0; const c = new Date(); c.setHours(0, 0, 0, 0);
+    if (!days.has(dateStr(c))) c.setDate(c.getDate() - 1);
+    while (days.has(dateStr(c))) { cur++; c.setDate(c.getDate() - 1); }
+    return { cur, best, active: days.size };
+}
+const totalCheckins = () => S.tasks.reduce((a, t) => a + Object.keys(t.history).filter(d => t.history[d]).length, 0);
+function dataRows() {
+    return [
+        { id: 'tasks', label: 'Tasks & check-in history', key: K('tasks'), info: `${S.tasks.length} tasks · ${totalCheckins()} check-ins`, val: () => S.tasks },
+        { id: 'resume', label: 'Resume checklist ticks', key: K('resume'), info: `${Object.keys(S.resume).length} items ticked`, val: () => S.resume },
+        { id: 'notes', label: 'Memory vault (notes)', key: K('notes'), info: `${S.notes.length} notes`, val: () => S.notes },
+        { id: 'log', label: 'Activity log', key: K('log'), info: `${S.log.length} entries`, val: () => S.log },
+        { id: 'users', label: 'Accounts on this device', key: 'users', info: `${Object.keys(Store.get('users', {})).length} account(s) · passwords hidden`,
+          val: () => Object.fromEntries(Object.entries(Store.get('users', {})).map(([k, u]) => [k, { name: u.name, username: u.username, created: u.created, password: '•••••• (hashed)' }])), size: () => byteLen(Store.get('users', {})) },
+        { id: 'prefs', label: 'Preferences', key: 'theme · session', info: 'Theme & active session', val: () => ({ theme: Store.get('theme', null), session: Store.get('session', null) }) }
+    ];
+}
+function renderDataTab() {
+    const st = streaks(), users = Object.keys(Store.get('users', {})).length;
+    const tiles = [[S.tasks.length, 'Tasks'], [totalCheckins(), 'Check-ins'], [st.cur, 'Current streak (days)'], [st.best, 'Best streak (days)'], [st.active, 'Active days'], [S.notes.length, 'Notes saved'], [S.log.length, 'Activity entries'], [users, 'Accounts']];
+    $('#settings-body').innerHTML = `
+    <div class="stack">
+        <div class="panel glass">
+            <h3>${ic('hard-drive')} Storage</h3>
+            <p class="muted">Everything is saved inside this app on your device (${esc(Store.mode)}). The app sets <b>no size limit</b> — keep adding tasks, notes and history; the only ceiling is your device's free space.</p>
+            <div class="meter"><div class="meter-fill" id="meter-fill"></div></div>
+            <div class="meter-legend" id="meter-legend">Calculating…</div>
+            <div class="btn-row" style="margin-top:16px;align-items:center;">
+                <button class="btn-ghost" data-act="persist">${ic('shield-check')} Protect storage from auto-clean</button>
+                <span class="meter-legend" id="persist-status"></span>
+            </div>
+        </div>
+        <div class="tiles">${tiles.map(([v, l]) => `<div class="tile glass"><b>${v}</b><span>${l}</span></div>`).join('')}</div>
+        <div class="panel glass">
+            <h3>${ic('database')} Everything stored in this app</h3>
+            <p class="muted">Tap “View data” to see the exact raw data saved for each section.</p>
+            <div id="data-rows">${dataRows().map(r => `
+                <div class="drow">
+                    <div class="drow-head">
+                        <div><div class="drow-title">${esc(r.label)}</div><div class="drow-meta">${esc(r.info)} · ${fmtBytes(r.size ? r.size() : byteLen(Store.get(r.key, null)))} · <code>${esc(r.key)}</code></div></div>
+                        <div class="btn-row"><button class="btn-ghost" data-act="raw-view" data-id="${r.id}">${ic('eye')} ${S.openRaw[r.id] ? 'Hide' : 'View data'}</button>
+                        <button class="btn-ghost" data-act="raw-copy" data-id="${r.id}">${ic('copy')} Copy</button></div>
+                    </div>
+                    ${S.openRaw[r.id] ? `<pre class="json-pre">${esc(rawText(r))}</pre>` : ''}
+                </div>`).join('')}</div>
+        </div>
+    </div>`;
+    updateStorageInfo();
+}
+function rawText(r) {
+    let t = JSON.stringify(r.val(), null, 2) || 'null';
+    if (t.length > 200000) t = t.slice(0, 200000) + '\n… (truncated for display — use Copy or Backup for the full data)';
+    return t;
+}
+function appBytes() { return Store.keys().filter(k => k === 'users' || k === 'session' || k === 'theme' || k.startsWith(`u/${S.user}/`)).reduce((a, k) => a + byteLen(Store.get(k)), 0); }
+async function updateStorageInfo() {
+    const legend = $('#meter-legend'); if (!legend) return;
+    const mine = appBytes();
+    let txt = `Your app data: <b>${fmtBytes(mine)}</b>`, pct = 1;
+    try {
+        if (navigator.storage && navigator.storage.estimate) {
+            const e = await navigator.storage.estimate();
+            if (e.quota) { pct = Math.max(1, (e.usage / e.quota) * 100); txt += ` · Browser storage used: ${fmtBytes(e.usage)} of ${fmtBytes(e.quota)} available (${pct < 0.1 ? '<0.1' : pct.toFixed(1)}%)`; }
+        }
+    } catch (e) {}
+    if (!$('#meter-legend')) return;
+    legend.innerHTML = txt; $('#meter-fill').style.width = Math.min(100, pct) + '%';
+    try {
+        if (navigator.storage && navigator.storage.persisted) {
+            const p = await navigator.storage.persisted();
+            const el = $('#persist-status'); if (el) el.textContent = p ? '✓ Protected — the browser will not auto-clear your data' : 'Not protected yet';
+        }
+    } catch (e) {}
+}
+async function requestPersist() {
+    try {
+        if (navigator.storage && navigator.storage.persist) {
+            const ok = await navigator.storage.persist();
+            logEvent('settings', ok ? 'Persistent storage granted' : 'Persistent storage request denied');
+            showToast(ok ? 'Storage protected' : 'Browser declined — keep a backup', ok ? 'shield-check' : 'x', ok ? 'var(--apti)' : 'var(--core)');
+            updateStorageInfo(); return;
+        }
+    } catch (e) {}
+    showToast('Not supported in this browser', 'x', 'var(--core)');
+}
+
+// ----- Activity -----
+const LOG_ICONS = { account: 'user', check: 'check-circle', task: 'list-checks', note: 'sticky-note', resume: 'file-text', backup: 'download', settings: 'settings', data: 'database' };
+function renderActivityTab() {
+    $('#settings-body').innerHTML = `
+    <div class="panel glass">
+        <h3>${ic('clock')} Activity log</h3>
+        <p class="muted">A complete record of what you do in this app. ${S.log.length} entries stored.</p>
+        <div class="vault-toolbar"><div class="search-wrap">${ic('search')}<input type="search" id="log-search" placeholder="Filter activity…" value="${esc(S.logQ)}"></div></div>
+        <div id="log-list"></div>
+        <div id="log-more" style="margin-top:16px;"></div>
+    </div>`;
+    renderLogList();
+}
+function renderLogList() {
+    const q = S.logQ.trim().toLowerCase();
+    const all = S.log.slice().reverse().filter(e => !q || e.msg.toLowerCase().includes(q) || e.type.includes(q));
+    const shown = all.slice(0, S.logShown);
+    $('#log-list').innerHTML = shown.length ? shown.map(e => `
+        <div class="log-row"><div class="log-ic">${ic(LOG_ICONS[e.type] || 'clock')}</div>
+        <div><div class="log-msg">${esc(e.msg)}</div><div class="log-time">${fmtDateTime(e.t)}</div></div></div>`).join('')
+        : `<div class="empty">${ic('clock')}<p>No activity yet.</p></div>`;
+    $('#log-more').innerHTML = all.length > shown.length ? `<button class="btn-ghost" data-act="log-more">Show more (${all.length - shown.length} left)</button>` : '';
+}
+
+// ----- Backup & reset -----
+function buildBackup() {
+    const u = currentUserRec();
+    return { app: 'VFSTR Placement OS', version: 2, exportedAt: new Date().toISOString(), profile: { name: u.name, username: S.user, created: u.created }, tasks: S.tasks, resume: S.resume, notes: S.notes, log: S.log };
+}
+function renderBackupTab() {
+    $('#settings-body').innerHTML = `
+    <div class="stack">
+        <div class="two-col">
+            <div class="panel glass">
+                <h3>${ic('download')} Download backup</h3>
+                <p class="muted">Saves all your tasks, check-ins, notes, resume ticks and activity into one .json file you can keep forever.</p>
+                <button class="btn-add green" data-act="export">${ic('download')} Download Backup (Export)</button>
+            </div>
+            <div class="panel glass">
+                <h3>${ic('upload')} Restore backup</h3>
+                <p class="muted">Load a backup file. This replaces the data in this profile. Old backups (task list only) work too.</p>
+                <label class="btn-add amber" style="cursor:pointer;">${ic('upload')} Choose backup file<input type="file" id="import-file" accept=".json,application/json" hidden></label>
+                <details class="paste"><summary>…or paste backup text</summary>
+                    <label class="field"><textarea id="import-text" placeholder="Paste the backup JSON here" style="min-height:110px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;"></textarea></label>
+                    <button class="btn-ghost" data-act="import-paste">${ic('upload')} Restore from text</button></details>
+            </div>
+        </div>
+        <div class="panel glass danger-zone">
+            <h3>${ic('trash')} Danger zone</h3>
+            <p class="muted">These cannot be undone. Download a backup first.</p>
+            <div class="btn-row">
+                <button class="btn-add red" data-act="erase">${ic('trash')} Erase all my data</button>
+                <button class="btn-add red" data-act="delete-account">${ic('x')} Delete my account</button>
+            </div>
+        </div>
+    </div>`;
+}
+async function exportData() {
+    const json = JSON.stringify(buildBackup(), null, 2), fn = `VFSTR_Backup_${todayStr()}.json`;
+    logEvent('backup', 'Exported a backup');
+    if (dlCap) {
+        try { await dlCap.save({ filename: fn, data: json }); showToast('Backup saved', 'download', 'var(--apti)'); return; }
+        catch (e) { if (e && e.code === 'declined') return showToast('Download cancelled', 'x', 'var(--core)'); }
+    } else {
+        try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = fn; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
+    }
+    $('#export-name').textContent = fn; $('#export-text').value = json; showModal('export-bg');
+}
+function cleanTasks(arr) {
+    return arr.filter(t => t && typeof t.name === 'string').map(t => ({ id: String(t.id || uid()), name: String(t.name).slice(0, 200), category: String(t.category || 'Core CS'), history: t.history && typeof t.history === 'object' ? t.history : {} }));
+}
+async function importText(text) {
+    let data;
+    try { data = JSON.parse(text); } catch (e) { return showToast('Invalid backup file', 'x', 'var(--danger)'); }
+    if (Array.isArray(data)) data = { tasks: data };
+    if (!data || typeof data !== 'object' || !Array.isArray(data.tasks)) return showToast('This is not a Placement OS backup', 'x', 'var(--danger)');
+    const tasks = cleanTasks(data.tasks);
+    const notes = Array.isArray(data.notes) ? data.notes.filter(n => n && typeof n === 'object').map(n => ({ id: String(n.id || uid()), title: String(n.title || ''), body: String(n.body || ''), tag: NOTE_TAGS.includes(n.tag) ? n.tag : 'Note', pinned: !!n.pinned, created: Number(n.created) || Date.now(), updated: Number(n.updated) || Date.now() })) : null;
+    if (!(await askConfirm('Restore this backup?', `This will replace your current data with ${tasks.length} tasks${notes ? ` and ${notes.length} notes` : ''}.`, 'Restore', false))) return;
+    S.tasks = tasks; saveTasks();
+    if (notes) { S.notes = notes; saveNotes(); }
+    if (data.resume && typeof data.resume === 'object' && !Array.isArray(data.resume)) { S.resume = data.resume; saveResume(); }
+    if (Array.isArray(data.log)) { S.log = data.log.filter(e => e && e.msg).map(e => ({ id: String(e.id || uid()), t: Number(e.t) || Date.now(), type: String(e.type || 'data'), msg: String(e.msg) })); }
+    logEvent('backup', `Restored backup (${tasks.length} tasks${notes ? `, ${notes.length} notes` : ''})`);
+    renderAll(); showToast('Data restored successfully!', 'upload', 'var(--primary)');
+}
+async function eraseData() {
+    if (!(await askConfirm('Erase all your data?', 'All tasks, check-ins, notes, resume ticks and activity for this profile will be permanently deleted. Your account stays.', 'Erase everything'))) return;
+    S.tasks = []; S.notes = []; S.resume = {}; S.log = [];
+    saveTasks(); saveNotes(); saveResume(); saveLog();
+    logEvent('data', 'Erased all data'); S.editNote = null;
+    renderAll(); showToast('All data erased', 'trash', 'var(--danger)');
+}
+async function deleteAccount() {
+    if (!(await askConfirm('Delete your account?', `Account @${S.user} and everything stored under it will be permanently removed from this device.`, 'Delete account'))) return;
+    const u = S.user;
+    Store.keys().filter(k => k.startsWith(`u/${u}/`)).forEach(k => Store.del(k));
+    const users = Store.get('users', {}); delete users[u]; Store.set('users', users);
+    Store.set('session', null); S.user = null; closeSidebar();
+    showAuth(Object.keys(users).length ? 'login' : 'register');
+    showToast('Account deleted', 'trash', 'var(--danger)');
+}
+
+function renderAll() {
+    renderDashboard(); renderTracker(); renderResume(); setDailyQuote();
+    if ($('#view-settings').classList.contains('active')) renderSettings();
+}
+
+// ---------- events ----------
+document.addEventListener('click', async e => {
+    const stop = e.target.closest('[data-stop]');
+    const el = e.target.closest('[data-act]');
+    if (!el) return;
+    // clicks inside a modal box only trigger actions that are inside the box
+    if (stop && !stop.contains(el)) return;
+    const a = el.dataset.act, d = el.dataset;
+    if (el.tagName === 'INPUT') return; // checkboxes handled on 'change'
+    switch (a) {
+        case 'auth-tab': switchAuthTab(d.tab); break;
+        case 'toggle-pass': {
+            const inp = $('#' + d.target), hid = inp.type === 'password';
+            inp.type = hid ? 'text' : 'password'; el.innerHTML = ic(hid ? 'eye-off' : 'eye'); break; }
+        case 'login': handleLogin(); break;
+        case 'register': handleRegister(); break;
+        case 'logout': logout(); break;
+        case 'sidebar': toggleSidebar(); break;
+        case 'view': showView(d.view); break;
+        case 'theme': toggleTheme(); break;
+        case 'acc': toggleAcc(el); break;
+        case 'month': S.month = new Date(+d.y, +d.m, 1); renderTracker(); break;
+        case 'open-task': openTaskModal(); break;
+        case 'close-task': closeTaskModal(); break;
+        case 'del-task': deleteTask(d.id); break;
+        case 'confirm-yes': resolveConfirm(true); break;
+        case 'confirm-no': resolveConfirm(false); break;
+        case 'close-export': hideModal('export-bg'); break;
+        case 'copy-export': showToast((await copyText($('#export-text').value)) ? 'Copied to clipboard' : 'Copy failed — select the text manually', 'copy', 'var(--primary)'); break;
+        case 'stab': S.settingsTab = d.tab; renderSettings(); break;
+        case 'save-name': saveName(); break;
+        case 'save-pw': savePw(); break;
+        case 'note-save': saveNote(); break;
+        case 'note-cancel': S.editNote = null; renderVaultTab(); break;
+        case 'note-filter': S.noteTag = d.tag; renderNoteChips(); renderNoteList(); break;
+        case 'note-edit': S.editNote = d.id; renderVaultTab(); $('#main-area').scrollTo(0, 0); break;
+        case 'note-del': deleteNote(d.id); break;
+        case 'note-pin': { const n = S.notes.find(x => x.id === d.id); if (n) { n.pinned = !n.pinned; saveNotes(); renderNoteList(); } break; }
+        case 'note-copy': { const n = S.notes.find(x => x.id === d.id); if (n) showToast((await copyText((n.title ? n.title + '\n\n' : '') + n.body)) ? 'Note copied' : 'Copy failed', 'copy', 'var(--primary)'); break; }
+        case 'raw-view': S.openRaw[d.id] = !S.openRaw[d.id]; renderDataTab(); break;
+        case 'raw-copy': { const r = dataRows().find(x => x.id === d.id); if (r) showToast((await copyText(JSON.stringify(r.val(), null, 2))) ? 'Copied to clipboard' : 'Copy failed', 'copy', 'var(--primary)'); break; }
+        case 'persist': requestPersist(); break;
+        case 'log-more': S.logShown += 50; renderLogList(); break;
+        case 'export': exportData(); break;
+        case 'import-paste': importText($('#import-text').value); break;
+        case 'erase': eraseData(); break;
+        case 'delete-account': deleteAccount(); break;
+    }
+});
+document.addEventListener('change', e => {
+    const el = e.target;
+    if (el.matches('input[data-act="toggle"]')) toggleTask(el.dataset.id, el.dataset.date, el.checked);
+    else if (el.matches('input[data-act="resume"]')) toggleResume(el.dataset.key, +el.dataset.sec, el.checked);
+    else if (el.id === 'import-file') {
+        const f = el.files[0]; if (!f) return;
+        const rd = new FileReader(); rd.onload = ev => importText(String(ev.target.result)); rd.readAsText(f); el.value = '';
+    }
+});
+document.addEventListener('input', e => {
+    if (e.target.id === 'note-search') { S.noteQ = e.target.value; renderNoteList(); }
+    else if (e.target.id === 'log-search') { S.logQ = e.target.value; S.logShown = 50; renderLogList(); }
+});
+document.addEventListener('submit', e => { if (e.target.id === 'task-form') addTask(e); });
+document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !$('#auth-screen').hidden && e.target.tagName === 'INPUT') {
+        e.preventDefault(); $('#form-login').hidden ? handleRegister() : handleLogin();
+    } else if (e.key === 'Enter' && e.target.matches && e.target.matches('.sidebar-profile')) showView('settings');
+    else if (e.key === 'Escape') {
+        if ($('#confirm-bg').classList.contains('show')) resolveConfirm(false);
+        else { closeTaskModal(); hideModal('export-bg'); }
+    }
+});
+window.addEventListener('beforeunload', () => {});
+
+// ---------- boot ----------
+(async function boot() {
+    await Store.init();
+    const theme = Store.get('theme', null) || document.documentElement.getAttribute('data-theme') || 'light';
+    hydrateIcons();
+    applyTheme(theme);
+    renderStatic();
+    tickCountdown(); setInterval(tickCountdown, 30000);
+    try { if (window.claude && window.claude.use) window.claude.use('downloads').then(d => { dlCap = d; }).catch(() => {}); } catch (e) {}
+    navigator.storage && navigator.storage.persisted && navigator.storage.persisted().then(p => { if (!p && navigator.storage.persist) navigator.storage.persist().catch(() => {}); }).catch(() => {});
+    const users = Store.get('users', {}), sess = Store.get('session', null);
+    $('#boot').remove();
+    if (sess && users[sess]) enterApp(sess);
+    else showAuth(Object.keys(users).length ? 'login' : 'register');
+})();
+</script>
+</body>
+</html>
